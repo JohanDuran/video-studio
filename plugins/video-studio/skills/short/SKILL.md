@@ -12,7 +12,7 @@ Before anything: read the profile (`video-toolkit` §0) and follow `editing-rule
 if it fails, stop and help the user start Docker. The `short.json` format is in the toolbox repo's
 `docs/short-spec.md` (`toolbox.repo_dir` in the profile) — read it before writing the spec.
 
-Project folder: `<studio>/<ProjectName>/` (agree a short PascalCase or snake_case name with the user).
+Project folder: `<channel folder>/<ProjectName>/` (`video-toolkit` §0; agree a short PascalCase or snake_case name with the user).
 
 ## Steps
 

@@ -1,15 +1,24 @@
 ---
 name: studio-setup
-description: "Set up or update the video-studio profile and tools on this PC: checks Docker and the media toolbox, the NVIDIA GPU and the Hugging Face login for Stable Audio, asks the user a few questions and writes <studio>/studio.json plus the ~/.video-studio/config.json pointer, installs the HyperFrames skills globally, and installs the DaVinci Resolve MCP with its free-edition bridge. Use when the user runs /studio-setup, when the studio profile is missing, or when they want to change their channel, voice, recordings or screen settings."
-argument-hint: "[check | voice | recordings | ...]"
+description: "Set up or update the video-studio profile and tools on this PC: checks Docker and the media toolbox, the NVIDIA GPU and the Hugging Face login for Stable Audio, asks the user a few questions and writes a channel profile <studio>/<channel>/studio.json plus the ~/.video-studio/config.json pointer, adds more channels (one folder each), installs the HyperFrames skills globally, and installs the DaVinci Resolve MCP with its free-edition bridge. Use when the user runs /studio-setup, when the studio profile is missing, or when they want to change their channel, voice, recordings or screen settings, or add another channel."
+argument-hint: "[check | channel | voice | recordings | ...]"
 ---
 
 # Studio setup
 
-Goal: a working toolchain plus a profile at `<studio>/studio.json` that every other video-studio skill reads.
-Run the steps in order. Report each check as ✓ / ✗ with the fix. Safe to run again: on a re-run, load the existing
-profile, show it, and only ask about what the user wants to change (an argument like `voice` or `recordings`
-narrows it to that section; `check` runs §1 only and changes nothing).
+Goal: a working toolchain plus one profile per channel at `<studio>/<channel>/studio.json`, which every other
+video-studio skill reads (they find it as `video-toolkit` §0 says). Shared things stay at the studio root:
+`sfx_library/`, `recordings/`, `_scratch/`.
+
+Run the steps in order. Report each check as ✓ / ✗ with the fix. Safe to run again:
+
+- **A profile already exists** (found the `video-toolkit` §0 way, or listed in the pointer): show which channel(s)
+  exist and ask: **update a channel** (load it, show it, only ask about what they want to change) or **add a new channel**
+  (§2b). An argument narrows it: `channel` → add a channel; `voice`, `recordings`, … → that section of the current
+  channel; `check` → §1 only, changes nothing.
+- **Older single-channel studio** (`studio.json` directly in the studio root): it keeps working. When the user adds a
+  second channel, offer to move the first one into its own `<studio>/<channel>/` folder (its `studio.json` and project
+  folders), and warn that Resolve projects then need their media relinked.
 
 Rules for this skill: free tools only (see `editing-rules`). Never type tokens, passwords or license
 acceptances for the user — they do those themselves. Ask before installing anything.
@@ -55,6 +64,7 @@ Ask in one or two rounds (use the question tool where available), with sensible 
 1. **Studio folder** — where projects and the sound library live. Default `%USERPROFILE%\media-studio`
    (match the toolbox's `-StudioDir` if already installed: read `OUTPUTS_DIR` / `SFX_LIBRARY` from its `.env`).
 2. **Channel** — name, handle, main language, one line on what it's about, anything that must never appear on screen.
+   Its folder is `<studio>/<channel-slug>/` (lowercase, dashes, e.g. `jdkoder`); confirm the name.
 3. **Recordings** (optional) — default folder `<studio>/recordings`, for any source (screen recorder, camera, phone).
    Suggest pointing their recorder's output there; if they keep recordings elsewhere, use that folder instead.
    Ask whether the camera is a separate file. Then probe one recent file with `ffprobe` to find which audio stream is the mic
@@ -68,14 +78,24 @@ Ask in one or two rounds (use the question tool where available), with sensible 
    and the usable app area. Confirm with the user.
 7. **Resolve** — edition (free/Studio) and version, timeline fps they usually use.
 
+### 2b. Adding another channel
+
+Skip the machine checks (run `toolbox_status` only). Copy `recordings`, `screen`, `toolbox` and `resolve` from an
+existing channel's profile and ask only whether any of them differ for this channel. Then ask the channel-specific
+questions: **Channel** (2), **Voice** (4), **Transcription vocab** (5), and any standing preferences for `house_rules`.
+Start `house_rules` empty unless the user wants rules copied from another channel.
+
 ## 3. Write the profile
 
 1. Start from `${CLAUDE_PLUGIN_ROOT}/templates/studio.json` (this plugin's `templates/studio.json`). Fill in the answers;
    keep unknowns empty rather than inventing them. Set `toolbox.repo_dir`, `toolbox.gpu`, `toolbox.gpu_vram_gb` and
    `toolbox.sfx_library` from §1.
-2. Write `<studio>/studio.json`, creating the folder if needed. On a re-run, merge — never drop `house_rules`.
-3. Write the pointer `%USERPROFILE%\.video-studio\config.json`:
-   `{"studio": "<studio folder, forward slashes>"}`.
+2. Write `<studio>/<channel-slug>/studio.json`, creating the folder if needed. Set `studio_dir` to the studio root and
+   `channel_dir` to the channel folder. On a re-run, merge — never drop `house_rules`.
+3. Write the pointer `%USERPROFILE%\.video-studio\config.json` (forward slashes):
+   `{"studio": "<studio root>", "default_channel": "<channel folder>", "channels": {"<Channel name>": "<channel folder>"}}`.
+   Adding a channel adds it to `channels`; ask whether it should become `default_channel` (the one used when a chat is
+   opened outside any channel folder). Keep any keys already there.
 4. If the toolbox's `.env` disagrees with the profile (vocab, protected recordings folder, sound library), tell the user
    which lines to change and offer to edit `.env` and restart with `docker compose up -d`.
 
@@ -112,4 +132,6 @@ point the user to the mcp-for-blender README for the add-on. Skip if they don't 
 ## 7. Wrap up
 
 Show a short summary: what's working, what's skipped, where the profile is, and the next step — `/short <topic>`,
-`/edit-recording` or `/explainer <topic>`.
+`/edit-recording` or `/explainer <topic>`. Explain how channels are picked: open the chat in a channel's folder
+(`<studio>/<channel>/`) to work on that channel; a chat opened anywhere else uses the default channel. Another channel
+can be added any time with `/studio-setup channel`.

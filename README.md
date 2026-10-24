@@ -55,15 +55,23 @@ Update later with `claude plugin marketplace update video-studio` and `claude pl
 
 `/studio-setup` writes two files:
 
-- `<studio>/studio.json` — your profile (template: `plugins/video-studio/templates/studio.json`): channel name and
-  language, recordings folder and which audio stream is the mic, whether the camera is a separate file, default voice and
-  speed, transcription vocabulary, screen geometry, toolbox and Resolve settings, and `house_rules` — standing
-  preferences Claude adds to as you state them.
-- `~/.video-studio/config.json` — `{"studio": "<path to your studio folder>"}`, so the plugin finds the profile from
-  any working folder.
+- `<studio>/<channel>/studio.json` — the channel's profile (template: `plugins/video-studio/templates/studio.json`):
+  channel name and language, recordings folder and which audio stream is the mic, whether the camera is a separate file,
+  default voice and speed, transcription vocabulary, screen geometry, toolbox and Resolve settings, and `house_rules` —
+  standing preferences Claude adds to as you state them.
+- `~/.video-studio/config.json` — the studio root, your channels and the default one, so the plugin finds a profile
+  from any working folder.
 
-Every video gets its own folder: `<studio>/<ProjectName>/` (named after the Resolve project when there is one).
-Generated sounds are shared across videos in the toolbox's sound library.
+```
+~/media-studio/            the studio
+  sfx_library/  recordings/  _scratch/      shared by all channels
+  my-channel/              studio.json + one folder per video: my-channel/<ProjectName>/
+  second-channel/          its own studio.json, voice, house rules, videos
+```
+
+**Several channels:** add one with `/studio-setup channel`. To work on a channel, open the chat in its folder (or one of
+its video folders): the plugin uses the nearest `studio.json` above where the chat runs, like git finds its repo. A
+chat opened anywhere else uses the default channel. Generated sounds and raw recordings are shared across channels.
 
 ## Free tools only
 

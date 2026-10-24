@@ -1,12 +1,18 @@
 {
   "version": 1,
   "studio_dir": "",
+  "channel_dir": "",
   "channel": {
     "name": "",
     "handle": "",
     "language": "en",
     "about": "",
-    "never_show": ["home town or address", "device name", "email addresses", "other people's chats or content"]
+    "never_show": [
+      "home town or address",
+      "device name",
+      "email addresses",
+      "other people's chats or content"
+    ]
   },
   "recordings": {
     "folder": "",
@@ -24,14 +30,27 @@
   },
   "transcription": {
     "language": "en",
-    "vocab": ["Claude", "Claude Code", "MCP", "DaVinci Resolve", "HyperFrames", "Blender", "ffmpeg"]
+    "vocab": [
+      "Claude",
+      "Claude Code",
+      "MCP",
+      "DaVinci Resolve",
+      "HyperFrames",
+      "Blender",
+      "ffmpeg"
+    ]
   },
   "screen": {
     "width": 1920,
     "height": 1080,
     "scale_percent": 100,
     "taskbar": "bottom",
-    "app_area": [0, 0, 1920, 1032]
+    "app_area": [
+      0,
+      0,
+      1920,
+      1032
+    ]
   },
   "toolbox": {
     "url": "http://localhost:8765",
