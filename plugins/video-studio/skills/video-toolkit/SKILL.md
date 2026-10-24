@@ -27,7 +27,7 @@ Project files always go in `<studio>/<ProjectName>/` (same name as the Resolve p
 | **blender** | MCP server (optional, `uvx mcp-for-blender`, from this plugin) | 3D scenes/renders (`execute_blender_code`, `look`) |
 | **Browser tools** | Claude in Chrome / built-in browser | Demos you then screen-record; research; the toolbox dashboard |
 | **ffmpeg / ffprobe** on the host | CLI | Screen recording (`gdigrab` on Windows), quick edits, analysis. The toolbox has its own ffmpeg in Docker |
-| **HyperFrames** | skills (`hyperframes`, `motion-graphics`, `faceless-explainer`, …) + toolbox `render_hyperframes` | Designed motion graphics/overlays (HTML → MP4, or MOV with alpha). Local render only |
+| **HyperFrames** | skills (`hyperframes`, `hyperframes-cli`, `hyperframes-registry`, `media-use`, …) + toolbox `render_hyperframes` | Designed motion graphics/overlays (HTML → MP4, or MOV with alpha). Local render only |
 
 ## 2. Media toolbox (the main engine)
 

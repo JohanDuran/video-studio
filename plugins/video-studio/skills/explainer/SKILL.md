@@ -9,7 +9,7 @@ argument-hint: "<topic> [vertical]"
 Topic: `$ARGUMENTS`. Add `vertical` for 9:16; default 16:9 at 1920×1080.
 
 Before anything: read the profile (`video-toolkit` §0) and follow `editing-rules`. This skill drives the HyperFrames
-`faceless-explainer` workflow (installed by `/studio-setup`) but swaps every paid step for the toolbox:
+explainer workflow from the `hyperframes` skill (installed by `/studio-setup`) but swaps every paid step for the toolbox:
 
 | HyperFrames step | Use instead |
 |---|---|
@@ -31,7 +31,7 @@ Project folder: `<studio>/<ProjectName>/`, HyperFrames project in `<project>/ani
 3. **Voice** — `speak` per line, trim silences, join (`video-toolkit` §3) → `audio/narration.wav`; user listens.
 4. **Word timings** — `transcribe` the narration (`language`, `vocab` from the profile) → `transcripts/narration.words.tsv`.
    Scene starts and animation triggers come from these words.
-5. **Visuals** — follow the HyperFrames skills (`hyperframes`, `faceless-explainer`, `hyperframes-animation`,
+5. **Visuals** — follow the HyperFrames skills (`hyperframes` for the explainer workflow and motion,
    `hyperframes-registry` before hand-building a named effect) to build one sub-composition per scene, timed to the
    words. Put the narration and a music bed (from the sound library, ~ −22 dB under the voice) in the composition.
 6. **Check** — `npx hyperframes check` / snapshots; show the user key frames before the full render.
