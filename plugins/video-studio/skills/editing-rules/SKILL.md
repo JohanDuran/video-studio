@@ -47,6 +47,7 @@ Follow these without re-asking. For what tools exist and how to use them, read `
 <studio>/
   studio.json        the profile
   sfx_library/       shared generated sounds + index.jsonl (reused across videos; path in toolbox.sfx_library)
+  recordings/        raw recordings from any source (default recordings.folder): read-only
   <ProjectName>/     one folder per video, named exactly after the Resolve project
     plan.md, script.json, short.json
     audio/           narration, mixes
