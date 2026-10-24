@@ -11,9 +11,12 @@ not in the plugin.
 | Command | What it does |
 |---|---|
 | `/studio-setup` | Checks Docker, the media toolbox, your GPU and Hugging Face login; asks a few questions and writes your profile; installs the HyperFrames skills and the DaVinci Resolve MCP |
-| `/short <topic>` | Vertical Short: plan → script → voiceover → word timings → `short.json` → build + preview → privacy check → render |
-| `/edit-recording` | Long-form edit: transcribe → cut proposals → apply in Resolve → HyperFrames overlays timed to words → SFX → render |
-| `/explainer <topic>` | Faceless explainer: script → voiceover → scenes built in HyperFrames → local render |
+| `/plan [idea]` | **Start here for every new video.** Discusses the idea with you (goal, audience, format, what footage you already have), picks the right tool for each beat (screen recording only where a real screen is the point; otherwise existing footage, HyperFrames graphics, Blender, stills) with the reasons, and writes `plan.md`. Produces nothing until you approve |
+| `/short <topic>` | Vertical Short from the approved plan: script → voiceover → word timings → each beat's visuals as planned → `short.json` → build + preview → privacy check → render |
+| `/edit-recording` | Long-form edit: transcribe → cut proposals → (plan for additions) → apply in Resolve → HyperFrames overlays timed to words → SFX → render |
+| `/explainer <topic>` | Faceless explainer from the approved plan: script → voiceover → scenes built in HyperFrames → local render |
+
+`/short`, `/explainer` and `/edit-recording` check for an approved `plan.md` first; without one they start with `/plan`.
 
 Background skills Claude reads on its own: `video-toolkit` (every capability and gotcha) and `editing-rules`
 (free tools only, raw recordings are read-only, non-destructive edits, folder layout, your house rules).
