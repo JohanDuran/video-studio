@@ -52,11 +52,12 @@ Transcription and TTS need no account. Skip this if they don't want generated so
 
 Ask in one or two rounds (use the question tool where available), with sensible defaults shown:
 
-1. **Studio folder** — where projects and the sound library live. Default `%USERPROFILE%\Documents\Studio`
+1. **Studio folder** — where projects and the sound library live. Default `%USERPROFILE%\media-studio`
    (match the toolbox's `-StudioDir` if already installed: read `OUTPUTS_DIR` / `SFX_LIBRARY` from its `.env`).
 2. **Channel** — name, handle, main language, one line on what it's about, anything that must never appear on screen.
-3. **Recordings** (optional) — which recorder (OBS, Game Bar, Camtasia, phone…), the folder it saves to, and whether the
-   camera is a separate file. Then probe one recent file with `ffprobe` to find which audio stream is the mic
+3. **Recordings** (optional) — default folder `<studio>/recordings`, for any source (screen recorder, camera, phone).
+   Suggest pointing their recorder's output there; if they keep recordings elsewhere, use that folder instead.
+   Ask whether the camera is a separate file. Then probe one recent file with `ffprobe` to find which audio stream is the mic
    (`mic_audio_stream`) and note any extra tracks in `audio_streams_note`. Record the camera file naming pattern if separate.
 4. **Voice** — offer 3–4 Kokoro voices for their language, `speak` one line with each into the studio's scratch folder
    (`<studio>/_setup/`), let them listen and pick; also the speed (default 1.0).
