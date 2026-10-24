@@ -1,0 +1,5 @@
+# Personal profiles never belong in this repo
+studio.json
+!plugins/video-studio/templates/studio.json
+.DS_Store
+Thumbs.db

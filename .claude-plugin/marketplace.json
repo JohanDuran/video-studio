@@ -1,0 +1,20 @@
+{
+  "name": "video-studio",
+  "owner": {
+    "name": "Johan Duran"
+  },
+  "metadata": {
+    "description": "Free, local video production with Claude: Shorts, recording edits and faceless explainers.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "video-studio",
+      "source": "./plugins/video-studio",
+      "description": "Make and edit videos with Claude using free local tools: the media-toolbox engine (transcription, TTS, SFX, ffmpeg, HyperFrames renders, vertical Shorts), DaVinci Resolve (free) and Blender.",
+      "version": "0.1.0",
+      "category": "productivity",
+      "keywords": ["video", "youtube", "shorts", "davinci-resolve", "hyperframes", "ffmpeg", "whisperx"]
+    }
+  ]
+}

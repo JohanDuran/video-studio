@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "media-toolbox": {
+      "type": "http",
+      "url": "http://localhost:8765/mcp"
+    },
+    "blender": {
+      "command": "uvx",
+      "args": ["mcp-for-blender"]
+    }
+  }
+}

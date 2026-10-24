@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "studio_dir": "",
+  "channel": {
+    "name": "",
+    "handle": "",
+    "language": "en",
+    "about": "",
+    "never_show": ["home town or address", "device name", "email addresses", "other people's chats or content"]
+  },
+  "recordings": {
+    "folder": "",
+    "recorder": "",
+    "mic_audio_stream": 0,
+    "audio_streams_note": "",
+    "separate_camera_file": false,
+    "camera_file_pattern": "",
+    "fps": 60
+  },
+  "voice": {
+    "default": "af_heart",
+    "speed": 1.0,
+    "other_languages": {}
+  },
+  "transcription": {
+    "language": "en",
+    "vocab": ["Claude", "Claude Code", "MCP", "DaVinci Resolve", "HyperFrames", "Blender", "ffmpeg"]
+  },
+  "screen": {
+    "width": 1920,
+    "height": 1080,
+    "scale_percent": 100,
+    "taskbar": "bottom",
+    "app_area": [0, 0, 1920, 1032]
+  },
+  "toolbox": {
+    "url": "http://localhost:8765",
+    "repo_dir": "",
+    "gpu": "",
+    "gpu_vram_gb": 0,
+    "sfx_library": ""
+  },
+  "resolve": {
+    "edition": "free",
+    "version": "21.0",
+    "timeline_fps": 60
+  },
+  "house_rules": []
+}

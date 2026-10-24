@@ -1,0 +1,89 @@
+---
+name: editing-rules
+description: Standing rules for making and editing video with the video-studio plugin — free tools only (free DaVinci Resolve 21.0.x, HyperFrames local render, ffmpeg, the local media toolbox), never touch raw recordings, work non-destructively, keep project files in the studio folder, plus the user's own house rules from their studio profile. Read before any DaVinci Resolve, HyperFrames, animation, audio, color, render or Shorts task, and before suggesting any tool, upgrade or paid feature.
+---
+
+# Editing rules
+
+Follow these without re-asking. For what tools exist and how to use them, read `video-toolkit`.
+
+## 0. Profile and house rules
+
+- Read `~/.video-studio/config.json` → `studio`, then `<studio>/studio.json` (see `video-toolkit` §0).
+  Missing → offer `/studio-setup`.
+- `house_rules` in the profile are the user's own decisions (for example "don't touch the mic sound").
+  They override the defaults below. When the user states a new standing preference, append it to `house_rules`
+  as one short line with the reason and the date, and tell them you saved it.
+
+## 1. Everything must be free
+
+- **DaVinci Resolve: free edition, 21.0.x.** Never suggest upgrading to 21.1 or later: 21.1 made Python
+  scripting Studio-only, which breaks the Resolve MCP on the free edition.
+  - Don't propose 21.1-only API features (SetSpeed, AddTransition, SetFades, NormalizeAudioLevel,
+    CreateMulticamClip, AutoAlignClips, output blanking). Offer a workaround (keyframes, Fusion, ffmpeg, or a
+    manual UI step).
+  - Don't propose Studio-only features (Voice Isolation, Dialogue Leveler, temporal/spatial noise reduction,
+    Super Scale, Magic Mask) without saying they're Studio-only.
+  - If `resolve.edition` in the profile is `studio`, the Studio features are fine; the 21.0.x pin still stands
+    only if the user relies on the in-app bridge.
+- **HyperFrames: local rendering only.** Use toolbox `render_hyperframes` or `npx hyperframes render`.
+  - Never run `hyperframes cloud render`, `lambda`, `cloudrun`, or `hyperframes auth login`.
+  - Never use HeyGen-credit features: HeyGen TTS/voices, avatars, `media-use resolve --type bgm|sfx`
+    (needs the heygen CLI), or AI image/music/video generation that costs credits. Use the toolbox instead:
+    `speak` for voice, `sfx_search`/`sfx_generate` for sound, `transcribe` for transcripts.
+  - If a HyperFrames workflow step needs one of these, skip it or use the free alternative and say so.
+  - Don't push the HyperFrames desktop app or `hyperframes open`: the pipeline is Claude + CLI render + Resolve MCP.
+    The web Studio preview is fine for the user's own small tweaks.
+- **Other tools:** prefer what's installed (ffmpeg, Node, Docker). Don't sign up for or connect paid services.
+- **Voice:** Kokoro (local, Apache 2.0) via `speak`, with the profile's voice and speed. Don't use non-commercial
+  TTS weights for channel videos.
+- **Transcription:** WhisperX via toolbox `transcribe`, not Resolve's or HeyGen's. No speaker diarization unless asked.
+- **Generated SFX/music:** Stable Audio Open 1.0 via toolbox `sfx_generate` (its Hugging Face license is accepted
+  during `/studio-setup`).
+
+## 2. Folder layout
+
+```
+<studio>/
+  studio.json        the profile
+  sfx_library/       shared generated sounds + index.jsonl (reused across videos; path in toolbox.sfx_library)
+  <ProjectName>/     one folder per video, named exactly after the Resolve project
+    plan.md, script.json, short.json
+    audio/           narration, mixes
+    capture/         screen recordings made for this video
+    transcripts/     per-file transcripts + <timeline>.timeline.* (timeline time)
+    timeline/        captured track layouts
+    animations/      HyperFrames projects and renders
+    builds/, renders/, audio_preview/
+```
+
+- Get the project name from Resolve (`project_manager get_current`) when one is open; otherwise agree it with the user.
+  Create the folder the first time it's needed.
+- Never write project files into the studio root or next to source recordings.
+
+## 3. Raw recordings are read-only
+
+- The recordings folder (`recordings.folder`) is never written to: no overwrites, deletes, renames or sidecar files.
+  Processed media goes into the project folder as copies, then gets swapped in through the media pool.
+- Use `recordings.mic_audio_stream` for transcription. If a recording has extra audio tracks (desktop audio,
+  a duplicate of the mic), point it out and don't remove or mute them without asking.
+
+## 4. Leave alone unless asked
+
+- **Audio:** don't EQ, denoise, compress or normalize the user's voice unless they ask.
+- **Picture:** don't grade or sharpen unless they ask.
+
+## 5. How to work
+
+- **Preview before committing:** for audio/visual changes, render a short before/after sample into
+  `<project>/audio_preview/` (or similar) and let the user decide.
+- **Propose, then apply:** show proposed cuts, trigger points and overlay placements before changing a timeline.
+- **Overlays → Resolve:** build HyperFrames projects in `<project>/animations/`, render as `mov` (alpha) at the
+  timeline fps, import, and place on an empty video track. If another session may be working in `animations/`,
+  build one-off overlays as their own HyperFrames project in a sibling folder.
+- **Face-safe zones:** when there's a camera image, measure where the face sits (tile frames with ffmpeg) before
+  placing cards; never cover the face.
+- **Privacy:** never show anything from `channel.never_show`. Screen recordings capture whatever was on screen —
+  check every crop at its first and last frame.
+- **Sound library:** search before generating, record the user's verdicts with `sfx_mark`, never delete library
+  files (rejected ones included). Place picks on an empty audio track, never Audio 1.
