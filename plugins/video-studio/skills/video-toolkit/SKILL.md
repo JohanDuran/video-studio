@@ -82,8 +82,12 @@ Project files always go in `<channel folder>/<ProjectName>/` (same name as the R
 
 ## 3. Vertical Short pipeline (summary — `/short` runs it)
 
-Hook in the first 2 s, fast pace, no dead air, ~20–60 s. Plan → script → voice (`speak`, trim silences) →
-word timings (`transcribe` the narration) → footage → `short.json` (anchor every cut, zoom, label and SFX to words,
+Every new video starts with the `plan` skill: an approved `plan.md` that picked a visual source per beat. Nothing
+is recorded or generated before that, and the screen is recorded only for beats the plan marks as screen recording.
+
+Hook in the first 2 s, fast pace, no dead air, ~20–60 s. Approved plan → script → voice (`speak`, trim silences) →
+word timings (`transcribe` the narration) → each beat's visual source as planned (existing footage, HyperFrames or
+Blender renders, stills, planned screen captures) → `short.json` (anchor every cut, zoom, label and SFX to words,
 e.g. `word:so - 0.05`, `word:use#2`) → `short_build` → `short_preview` → privacy check → final.
 Anchoring to words means a new voice take re-times the whole edit by rebuilding.
 

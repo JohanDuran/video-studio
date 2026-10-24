@@ -8,6 +8,13 @@ argument-hint: "<topic> [vertical]"
 
 Topic: `$ARGUMENTS`. Add `vertical` for 9:16; default 16:9 at 1920×1080.
 
+**Plan first.** Look for `plan.md` in the project folder (the working folder, or the project named in the arguments).
+- `Status: approved` → build exactly that plan: its beats, sources, narration and format. If something in it turns
+  out impossible, stop and ask before changing the plan.
+- Missing, or still a draft → don't build. Run the `plan` skill with the topic (it discusses the idea with the user and
+  picks the tools per beat), and continue here only once the plan is approved.
+
+
 Before anything: read the profile (`video-toolkit` §0) and follow `editing-rules`. This skill drives the HyperFrames
 explainer workflow from the `hyperframes` skill (installed by `/studio-setup`) but swaps every paid step for the toolbox:
 
@@ -25,8 +32,8 @@ Project folder: `<channel folder>/<ProjectName>/` (`video-toolkit` §0), HyperFr
 
 ## Steps
 
-1. **Brief** — audience, length (default 60–120 s; 30–60 s vertical), tone, language from the profile. Write `plan.md`
-   with the beats (one idea per scene). **Agree it with the user.**
+1. **Brief** — take audience, length, tone, format and the beats (one idea per scene) from the approved `plan.md`.
+   If the plan routes some beats to footage or Blender, build those as the plan says and place them as scenes.
 2. **Script** → `script.json` (one spoken line per entry, grouped by scene).
 3. **Voice** — `speak` per line, trim silences, join (`video-toolkit` §3) → `audio/narration.wav`; user listens.
 4. **Word timings** — `transcribe` the narration (`language`, `vocab` from the profile) → `transcripts/narration.words.tsv`.

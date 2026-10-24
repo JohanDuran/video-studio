@@ -15,6 +15,13 @@ resolve_bridge with the project open).
 
 Project folder: `<channel folder>/<ResolveProject>/` (`video-toolkit` §0).
 
+**Plan first.** If `plan.md` in the project folder has `Status: approved`, follow it: its goal, which parts to keep,
+which overlays, graphics, B-roll and sounds to add, and with which tool. Without an approved plan, steps 1–3 (reading
+the timeline, transcribing, proposing cuts) are fine because they change nothing, and they inform the plan. But before
+adding overlays, new footage, Blender shots, a new screen recording or SFX, run the `plan` skill: the recording is the
+"what already exists", and the plan decides what each part needs. Never record new screen footage unless the plan
+calls for it.
+
 ## Steps
 
 1. **Get the timeline** — current project + timeline from Resolve. If there's no project yet, create one from the
