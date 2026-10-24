@@ -33,12 +33,23 @@ MCP servers registered by the plugin: `media-toolbox` (`http://localhost:8765/mc
 
 ## Install
 
+Run these in a terminal (PowerShell, or the terminal panel in the Claude desktop app):
+
+```bash
+claude plugin marketplace add JohanDuran/video-studio
 ```
-claude plugin marketplace add <path-or-git-url-of-this-repo>
+
+```bash
 claude plugin install video-studio@video-studio
 ```
 
-Then start Claude Code in any folder and run `/studio-setup`.
+Then start a **new** Claude Code session in any folder (plugins load when a session starts) and run `/studio-setup`.
+
+> **Claude desktop app:** typing `/plugin marketplace add …` in a chat opens the plugin manager window instead of
+> running the command, so use the terminal commands above. In the Claude Code CLI, the same steps also work as
+> `/plugin marketplace add JohanDuran/video-studio` and `/plugin install video-studio@video-studio`.
+
+Update later with `claude plugin marketplace update video-studio` and `claude plugin update video-studio@video-studio`.
 
 ## Your profile
 
