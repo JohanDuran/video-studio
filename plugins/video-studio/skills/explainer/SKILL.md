@@ -21,7 +21,7 @@ explainer workflow from the `hyperframes` skill (installed by `/studio-setup`) b
 
 If HyperFrames isn't installed, stop and offer `/studio-setup`.
 
-Project folder: `<studio>/<ProjectName>/`, HyperFrames project in `<project>/animations/`.
+Project folder: `<channel folder>/<ProjectName>/` (`video-toolkit` §0), HyperFrames project in `<project>/animations/`.
 
 ## Steps
 

@@ -9,7 +9,8 @@ Follow these without re-asking. For what tools exist and how to use them, read `
 
 ## 0. Profile and house rules
 
-- Read `~/.video-studio/config.json` → `studio`, then `<studio>/studio.json` (see `video-toolkit` §0).
+- Find the channel's profile as `video-toolkit` §0 says: the nearest `studio.json` above the working folder, else the
+  default channel from `~/.video-studio/config.json`.
   Missing → offer `/studio-setup`.
 - `house_rules` in the profile are the user's own decisions (for example "don't touch the mic sound").
   They override the defaults below. When the user states a new standing preference, append it to `house_rules`
@@ -45,22 +46,26 @@ Follow these without re-asking. For what tools exist and how to use them, read `
 
 ```
 <studio>/
-  studio.json        the profile
-  sfx_library/       shared generated sounds + index.jsonl (reused across videos; path in toolbox.sfx_library)
+  sfx_library/       shared generated sounds + index.jsonl (reused across videos and channels; toolbox.sfx_library)
   recordings/        raw recordings from any source (default recordings.folder): read-only
-  <ProjectName>/     one folder per video, named exactly after the Resolve project
-    plan.md, script.json, short.json
-    audio/           narration, mixes
-    capture/         screen recordings made for this video
-    transcripts/     per-file transcripts + <timeline>.timeline.* (timeline time)
-    timeline/        captured track layouts
-    animations/      HyperFrames projects and renders
-    builds/, renders/, audio_preview/
+  _scratch/          toolbox outputs with no project folder
+  <channel>/         one folder per channel
+    studio.json      that channel's profile
+    <ProjectName>/   one folder per video, named exactly after the Resolve project
+      plan.md, script.json, short.json
+      audio/           narration, mixes
+      capture/         screen recordings made for this video
+      transcripts/     per-file transcripts + <timeline>.timeline.* (timeline time)
+      timeline/        captured track layouts
+      animations/      HyperFrames projects and renders
+      builds/, renders/, audio_preview/
 ```
+
+A single-channel studio may keep `studio.json` and the project folders directly in `<studio>/`; that still works.
 
 - Get the project name from Resolve (`project_manager get_current`) when one is open; otherwise agree it with the user.
   Create the folder the first time it's needed.
-- Never write project files into the studio root or next to source recordings.
+- Never write project files into the studio root, another channel's folder, or next to source recordings.
 
 ## 3. Raw recordings are read-only
 

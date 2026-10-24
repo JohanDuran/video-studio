@@ -1,6 +1,6 @@
 {
   "name": "video-studio",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Make and edit videos with Claude using free local tools: the media-toolbox engine (transcription, TTS, SFX, ffmpeg, HyperFrames renders, vertical Shorts), DaVinci Resolve (free) and Blender. Start with /studio-setup.",
   "author": {
     "name": "Johan Duran",

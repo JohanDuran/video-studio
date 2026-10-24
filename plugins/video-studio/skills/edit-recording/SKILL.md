@@ -13,7 +13,7 @@ read-only, no audio/picture processing unless asked, propose before applying. Ch
 Resolve MCP answers `project_manager get_current` (free edition: the user must run Workspace → Scripts → Utility →
 resolve_bridge with the project open).
 
-Project folder: `<studio>/<ResolveProject>/`.
+Project folder: `<channel folder>/<ResolveProject>/` (`video-toolkit` §0).
 
 ## Steps
 

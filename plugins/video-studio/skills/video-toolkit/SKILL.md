@@ -10,13 +10,32 @@ What exists and how to use it. The rules (free tools only, non-destructive, fold
 
 ## 0. Read the profile first
 
-1. Read `~/.video-studio/config.json` (`%USERPROFILE%\.video-studio\config.json` on Windows). It holds
-   `{"studio": "<studio folder>"}`.
-2. Read `<studio>/studio.json`. It has the user's channel, recordings layout, voice, transcription vocab,
-   screen geometry, toolbox settings and `house_rules`. Every value below that says "from the profile" comes from there.
-3. If either file is missing, tell the user and offer `/studio-setup`. Don't guess personal settings.
+A studio can hold several channels. Each channel has its own folder with its own `studio.json` (the profile);
+the studio root holds what channels share (`sfx_library/`, `recordings/`, `_scratch/`):
 
-Project files always go in `<studio>/<ProjectName>/` (same name as the Resolve project when there is one).
+```
+<studio>/                 e.g. ~/media-studio
+  sfx_library/  recordings/  _scratch/      shared
+  <channel>/studio.json   one profile per channel, its videos next to it: <channel>/<ProjectName>/
+```
+
+Find the profile in this order and use the first that exists:
+
+1. **Nearest `studio.json`**: in the current working folder or any folder above it (like git finds its repo).
+   This is how the user picks a channel: they open the chat in that channel's folder or one of its projects.
+2. **Default channel**: `~/.video-studio/config.json` (`%USERPROFILE%\.video-studio\config.json` on Windows)
+   → `default_channel`, a channel folder → its `studio.json`.
+3. **Older single-channel setups**: the same pointer's `studio` → `<studio>/studio.json`.
+4. None → tell the user and offer `/studio-setup`. Don't guess personal settings.
+
+The folder holding the chosen `studio.json` is the **channel folder**. Start by saying which channel you're using
+("Using channel JDKoder, profile at …") so a wrong pick is caught early. If the pointer lists several `channels` and
+the working folder is outside all of them, ask which channel the video is for.
+
+The profile has the channel, recordings layout, voice, transcription vocab, screen geometry, toolbox settings and
+`house_rules`. Every value below that says "from the profile" comes from there.
+
+Project files always go in `<channel folder>/<ProjectName>/` (same name as the Resolve project when there is one).
 
 ## 1. Inventory
 
