@@ -108,8 +108,9 @@ Loudness target ≈ −14 LUFS, peak ≤ −1 dB (check with `ebur128=peak=true`
   own browsing gets recorded.
 - **Recording indicator:** `/studio-setup` installs a floating pill at `<studio>\tools\rec-indicator`. It shows red
   **REC** while any host `gdigrab`/`ddagrab` ffmpeg runs, then green **DONE** with a chime when it stops, so the user
-  knows when they can use the PC again. It picks up recordings by itself, so there is nothing to call, and it never
-  appears in captures. If it isn't running (look for a `powershell.exe` whose command line contains `rec-indicator`),
+  knows when they can use the PC again. It picks up recordings by itself, so there is nothing to call. Normally it
+  never appears in captures. While the user is watching through a remote viewer (Chrome Remote Desktop, RDP, …), it
+  docks on the taskbar strip and **is** in the raw capture, below `screen.app_area`: crop to the app area. If it isn't running (look for a `powershell.exe` whose command line contains `rec-indicator`),
   start it with `wscript.exe "<studio>\tools\rec-indicator\start-hidden.vbs"` before recording.
 - Bring a window to front: PowerShell `ShowWindow(h,3)` + `WScript.Shell.AppActivate(pid)` + `SetForegroundWindow`.
   Close windows you opened with `CloseMainWindow()`.

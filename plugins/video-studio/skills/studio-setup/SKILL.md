@@ -128,9 +128,13 @@ Third-party server: samuelgursky/davinci-resolve-mcp (MIT). With the user's OK:
 
 A floating pill that is always on top: red **REC m:ss** while a host screen recording runs (any `ffmpeg` with
 `gdigrab`/`ddagrab` in its command line), then green **DONE** with a chime when it stops (it hides after 2 min, or on
-click). The user can drag it, and it remembers where. It is excluded from screen capture, so it never appears in
-recordings. It lets the user know when Claude has finished recording, since they can't use the PC meanwhile. With
-their OK:
+click). The user can drag it, and it remembers where. It lets the user know when Claude has finished recording, since
+they can't use the PC meanwhile.
+
+Normally it is excluded from screen capture, so it never appears in recordings. A remote viewer is a capture too
+(Chrome Remote Desktop, RDP, TeamViewer, RustDesk, Parsec, Sunshine), so while one is in use the pill would be invisible
+to the user. In that case it switches by itself: it stays capturable and docks at the left end of the bottom taskbar
+strip, outside the profile's `screen.app_area`, so edits that crop to the app area drop it. With their OK:
 
 1. Copy `${CLAUDE_PLUGIN_ROOT}/tools/rec-indicator/` to `<studio>/tools/rec-indicator/`. Use a stable folder, because the
    plugin's own path changes with each version. On a re-run, overwrite the copy so it stays current.
