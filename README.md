@@ -26,7 +26,9 @@ MCP servers registered by the plugin: `media-toolbox` (`http://localhost:8765/mc
 
 **Recording indicator** (`tools/rec-indicator`, Windows): when Claude screen-records, a floating red **REC** pill stays
 on top of everything, then turns green **DONE** with a chime when the recording stops, so you know when you can use
-the PC again. It never shows up in the recording. `/studio-setup` installs it.
+the PC again. It never shows up in the recording. If you watch the PC through Chrome Remote Desktop or another remote
+viewer, it moves to the taskbar instead, so you can see it, and stays outside the part of the screen your videos use.
+`/studio-setup` installs it.
 
 ## Requirements
 

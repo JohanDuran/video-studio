@@ -2,8 +2,10 @@
 # Watches for a screen-recording ffmpeg (gdigrab/ddagrab) and shows an always-on-top pill:
 #   red  "REC 0:42"   while recording
 #   green "DONE 2:13" after it stops (click to dismiss, auto-hides after 2 min)
-# The pill is excluded from screen capture, so it never appears in recordings.
-# Drag it anywhere; the position is remembered. Started at logon by start-hidden.vbs.
+# Normally the pill is excluded from screen capture, so it never appears in recordings.
+# Remote viewers (Chrome Remote Desktop, RDP, ...) are captures too, so while one is in use the
+# pill stays capturable and docks on the taskbar strip instead, outside the usable app area.
+# Drag it anywhere; the position is remembered per mode. Started at logon by start-hidden.vbs.
 
 $ErrorActionPreference = 'Stop'
 
@@ -33,19 +35,32 @@ public class RecIndicator : Form
     const uint WDA_EXCLUDEFROMCAPTURE = 0x11;
     static readonly TimeSpan DoneVisible = TimeSpan.FromMinutes(2);
 
+    // Processes that only run while someone is viewing this PC remotely.
+    static readonly string[] RemoteViewers =
+        { "remoting_desktop", "TeamViewer_Desktop", "rustdesk", "parsecd", "sunshine" };
+
     readonly Timer timer = new Timer();
-    readonly string posFile = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "rec-indicator.pos");
     readonly float scale;
 
     string state = "idle";           // idle | rec | done
     DateTime recStart, doneAt;
     TimeSpan lastLength;
     bool blink;
+    bool remoteView;                 // a remote viewer is in use: stay capturable, dock on taskbar
+
+    string PosFile
+    {
+        get
+        {
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                remoteView ? "rec-indicator-remote.pos" : "rec-indicator.pos");
+        }
+    }
 
     public RecIndicator()
     {
         using (var g = Graphics.FromHwnd(IntPtr.Zero)) scale = g.DpiX / 96f;
+        remoteView = IsRemoteViewed();
         FormBorderStyle = FormBorderStyle.None;
         ShowInTaskbar = false;
         TopMost = true;
@@ -96,7 +111,20 @@ public class RecIndicator : Form
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
-        SetWindowDisplayAffinity(Handle, WDA_EXCLUDEFROMCAPTURE);
+        ApplyAffinity();
+    }
+
+    void ApplyAffinity()
+    {
+        if (IsHandleCreated) SetWindowDisplayAffinity(Handle, remoteView ? 0u : WDA_EXCLUDEFROMCAPTURE);
+    }
+
+    static bool IsRemoteViewed()
+    {
+        if (SystemInformation.TerminalServerSession) return true;   // RDP
+        foreach (var n in RemoteViewers)
+            if (Process.GetProcessesByName(n).Length > 0) return true;
+        return false;
     }
 
     int checkCounter;
@@ -123,7 +151,12 @@ public class RecIndicator : Form
     void Tick()
     {
         // Full check once a second; blink every half second.
-        if (checkCounter++ % 2 == 0) cachedRecording = IsRecording();
+        if (checkCounter++ % 2 == 0)
+        {
+            cachedRecording = IsRecording();
+            bool remote = IsRemoteViewed();
+            if (remote != remoteView) { remoteView = remote; ApplyAffinity(); Location = LoadPos(); }
+        }
         bool rec = cachedRecording;
 
         if (rec && state != "rec")
@@ -192,19 +225,26 @@ public class RecIndicator : Form
     {
         try
         {
-            var parts = File.ReadAllText(posFile).Split(',');
+            var parts = File.ReadAllText(PosFile).Split(',');
             var p = new Point(int.Parse(parts[0]), int.Parse(parts[1]));
             foreach (var sc in Screen.AllScreens)
-                if (sc.WorkingArea.Contains(p)) return p;
+                if (sc.Bounds.Contains(p)) return p;
         }
         catch { }
-        var wa = Screen.PrimaryScreen.WorkingArea;
-        return new Point(wa.Right - Width - S(24), wa.Top + S(24));
+        var screen = Screen.PrimaryScreen;
+        var wa = screen.WorkingArea;
+        if (!remoteView) return new Point(wa.Right - Width - S(24), wa.Top + S(24));
+
+        // Remote view: left end of the bottom taskbar strip, outside the app area recordings use.
+        var b = screen.Bounds;
+        int strip = b.Bottom - wa.Bottom;
+        int y = strip >= Height ? wa.Bottom + (strip - Height) / 2 : b.Bottom - Height - S(4);
+        return new Point(b.Left + S(12), y);
     }
 
     void SavePos()
     {
-        try { File.WriteAllText(posFile, Location.X + "," + Location.Y); } catch { }
+        try { File.WriteAllText(PosFile, Location.X + "," + Location.Y); } catch { }
     }
 
     protected override void OnFormClosing(FormClosingEventArgs e) { SavePos(); base.OnFormClosing(e); }
