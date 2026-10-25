@@ -44,7 +44,7 @@ Project files always go in `<channel folder>/<ProjectName>/` (same name as the R
 | **media-toolbox** | MCP server (Docker, `http://localhost:8765/mcp`, from this plugin) | Transcription, TTS, SFX/music + sound library, ffmpeg/ffprobe, HyperFrames render, vertical Shorts |
 | **davinci-resolve** | MCP server (third-party, installed by `/studio-setup`) | Projects, media pool, timelines, placing clips, rendering in Resolve (free 21.0.x via the in-app bridge) |
 | **blender** | MCP server (optional, `uvx mcp-for-blender`, from this plugin) | 3D scenes/renders (`execute_blender_code`, `look`) |
-| **Browser tools** | Claude in Chrome / built-in browser | Demos you then screen-record; research; the toolbox dashboard |
+| **Claude in Chrome** | Browser extension (`mcp__claude-in-chrome__*`), the user's real Chrome | **The only browser for live websites**: research, demos you then screen-record. Never the built-in browser or Playwright/Puppeteer for external sites, since they get flagged as bots (`editing-rules` §6) |
 | **ffmpeg / ffprobe** on the host | CLI | Screen recording (`gdigrab` on Windows), quick edits, analysis. The toolbox has its own ffmpeg in Docker |
 | **HyperFrames** | skills (`hyperframes`, `hyperframes-cli`, `hyperframes-registry`, `media-use`, …) + toolbox `render_hyperframes` | Designed motion graphics/overlays (HTML → MP4, or MOV with alpha). Local render only |
 
@@ -114,8 +114,11 @@ Loudness target ≈ −14 LUFS, peak ≤ −1 dB (check with `ebur128=peak=true`
   start it with `wscript.exe "<studio>\tools\rec-indicator\start-hidden.vbs"` before recording.
 - Bring a window to front: PowerShell `ShowWindow(h,3)` + `WScript.Shell.AppActivate(pid)` + `SetForegroundWindow`.
   Close windows you opened with `CloseMainWindow()`.
+- **Browser footage = Claude in Chrome only.** Don't use the built-in browser, or a Playwright/Puppeteer script with a
+  fresh Chrome profile, for external sites: they get flagged as bots. If the extension isn't connected, ask the user
+  to connect it.
 - Claude in Chrome shows an orange border and its own cursor while acting — good on-camera proof. Its tabs may open
-  in the background; click the tab before recording.
+  in the background; click the tab and maximize Chrome before recording.
 - Clean dashboard footage: `chrome --app=http://localhost:8765/#/overview` (no tabs), maximize, close afterwards.
 - Claude app footage: the Terminal panel (open with `mcp__terminal__open_terminal_tab`, run a visible job) is a
   tall strip on the right — a natural vertical crop.

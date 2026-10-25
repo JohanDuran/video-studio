@@ -1,6 +1,6 @@
 ---
 name: editing-rules
-description: Standing rules for making and editing video with the video-studio plugin — free tools only (free DaVinci Resolve 21.0.x, HyperFrames local render, ffmpeg, the local media toolbox), never touch raw recordings, work non-destructively, keep project files in the studio folder, plus the user's own house rules from their studio profile. Read before any DaVinci Resolve, HyperFrames, animation, audio, color, render or Shorts task, and before suggesting any tool, upgrade or paid feature.
+description: Standing rules for making and editing video with the video-studio plugin — free tools only (free DaVinci Resolve 21.0.x, HyperFrames local render, ffmpeg, the local media toolbox), never touch raw recordings, work non-destructively, keep project files in the studio folder, plus the user's own house rules from their studio profile. Read before any DaVinci Resolve, HyperFrames, animation, audio, color, render or Shorts task, before opening any website for a video (Claude in Chrome only), and before suggesting any tool, upgrade or paid feature.
 ---
 
 # Editing rules
@@ -93,3 +93,16 @@ A single-channel studio may keep `studio.json` and the project folders directly 
   check every crop at its first and last frame.
 - **Sound library:** search before generating, record the user's verdicts with `sfx_mark`, never delete library
   files (rejected ones included). Place picks on an empty audio track, never Audio 1.
+
+## 6. Websites go through Claude in Chrome
+
+- For any live website during video work (research, looking up listings or products, pages to screen-record), use
+  **Claude in Chrome** (`mcp__claude-in-chrome__*`). It drives the user's real Chrome with their own sign-ins and
+  history, so sites don't flag it as a bot. This overrides the app's default of the built-in browser.
+- Never use these for external sites: the built-in browser (`mcp__Claude_Browser__*`), Playwright, Puppeteer,
+  Selenium, headless Chrome, or a script that starts Chrome with a new or temporary profile. Sites like Zillow
+  detect them as bots and block them or show a CAPTCHA.
+- If Claude in Chrome isn't connected, stop and ask the user to open Chrome and check the extension. Don't fall back to
+  another browser.
+- Local pages are exempt, and any browser is fine for them: HyperFrames preview/Studio, the toolbox dashboard on
+  localhost, and the toolbox's own render Chrome in Docker.
