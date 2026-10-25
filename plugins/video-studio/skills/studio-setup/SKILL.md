@@ -124,12 +124,29 @@ Third-party server: samuelgursky/davinci-resolve-mcp (MIT). With the user's OK:
    Studio edition instead: Preferences → General → External scripting using → Local.
 4. Restart Claude Code, then test with `project_manager get_current`.
 
-## 6. Blender (optional)
+## 6. Recording indicator (Windows)
+
+A floating pill that is always on top: red **REC m:ss** while a host screen recording runs (any `ffmpeg` with
+`gdigrab`/`ddagrab` in its command line), then green **DONE** with a chime when it stops (it hides after 2 min, or on
+click). The user can drag it, and it remembers where. It is excluded from screen capture, so it never appears in
+recordings. It lets the user know when Claude has finished recording, since they can't use the PC meanwhile. With
+their OK:
+
+1. Copy `${CLAUDE_PLUGIN_ROOT}/tools/rec-indicator/` to `<studio>/tools/rec-indicator/`. Use a stable folder, because the
+   plugin's own path changes with each version. On a re-run, overwrite the copy so it stays current.
+2. Start it: `wscript.exe "<studio>\tools\rec-indicator\start-hidden.vbs"`. A second launch exits, because it runs
+   as a single instance.
+3. Start-at-login is the user's step (a startup entry is persistent config): **Win+R** → `shell:startup` →
+   right-click-drag `start-hidden.vbs` into that folder → **Create shortcuts here**.
+
+To check it, record about 5 s with `gdigrab`: the pill should show red during the recording and green after it.
+
+## 7. Blender (optional)
 
 This plugin already registers `blender` (`uvx mcp-for-blender`). It needs uv and Blender with the MCP add-on running;
 point the user to the mcp-for-blender README for the add-on. Skip if they don't do 3D.
 
-## 7. Wrap up
+## 8. Wrap up
 
 Show a short summary: what's working, what's skipped, where the profile is, and the next step — `/short <topic>`,
 `/edit-recording` or `/explainer <topic>`. Explain how channels are picked: open the chat in a channel's folder

@@ -24,6 +24,10 @@ Background skills Claude reads on its own: `video-toolkit` (every capability and
 MCP servers registered by the plugin: `media-toolbox` (`http://localhost:8765/mcp`) and `blender`
 (`uvx mcp-for-blender`, optional). The DaVinci Resolve MCP is installed by `/studio-setup` with its own installer.
 
+**Recording indicator** (`tools/rec-indicator`, Windows): when Claude screen-records, a floating red **REC** pill stays
+on top of everything, then turns green **DONE** with a chime when the recording stops, so you know when you can use
+the PC again. It never shows up in the recording. `/studio-setup` installs it.
+
 ## Requirements
 
 - **Windows 10/11 with an NVIDIA GPU** is the tested setup (8 GB VRAM is enough). Without a GPU, ffmpeg, HyperFrames

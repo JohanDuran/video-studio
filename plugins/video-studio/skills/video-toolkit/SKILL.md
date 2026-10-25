@@ -106,6 +106,11 @@ Loudness target ≈ −14 LUFS, peak ≤ −1 dB (check with `ebur128=peak=true`
   (`fps=1/2,…,tile`) or scene detection (`select='gt(scene,0.02)',showinfo` on a crop).
 - **Ask the user for a hands-off window** before recording, and say what will move on screen — otherwise their
   own browsing gets recorded.
+- **Recording indicator:** `/studio-setup` installs a floating pill at `<studio>\tools\rec-indicator`. It shows red
+  **REC** while any host `gdigrab`/`ddagrab` ffmpeg runs, then green **DONE** with a chime when it stops, so the user
+  knows when they can use the PC again. It picks up recordings by itself, so there is nothing to call, and it never
+  appears in captures. If it isn't running (look for a `powershell.exe` whose command line contains `rec-indicator`),
+  start it with `wscript.exe "<studio>\tools\rec-indicator\start-hidden.vbs"` before recording.
 - Bring a window to front: PowerShell `ShowWindow(h,3)` + `WScript.Shell.AppActivate(pid)` + `SetForegroundWindow`.
   Close windows you opened with `CloseMainWindow()`.
 - Claude in Chrome shows an orange border and its own cursor while acting — good on-camera proof. Its tabs may open
