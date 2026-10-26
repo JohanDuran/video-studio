@@ -23,7 +23,7 @@ explainer workflow from the `hyperframes` skill (installed by `/studio-setup`) b
 | HeyGen TTS / voices | toolbox `speak` with `voice.default` / `voice.speed` |
 | HeyGen / hosted transcription | toolbox `transcribe` (word timings) |
 | `media-use resolve --type bgm\|sfx`, generated music | toolbox `sfx_search` → `sfx_generate` |
-| AI image/video generation, avatars | skip; use typography, shapes, diagrams, icons, data-viz |
+| AI image/video generation, avatars | skip; use typography, shapes, diagrams, icons, data-viz. A real photo the plan names can become a moving scene with toolbox `image_depth` + `parallax` (`video-toolkit` §2a) |
 | `hyperframes cloud render`, lambda, cloudrun, `auth login` | toolbox `render_hyperframes` (local) |
 
 If HyperFrames isn't installed, stop and offer `/studio-setup`.
@@ -31,6 +31,9 @@ If HyperFrames isn't installed, stop and offer `/studio-setup`.
 Project folder: `<channel folder>/<ProjectName>/` (`video-toolkit` §0), HyperFrames project in `<project>/animations/`.
 
 ## Steps
+
+Use only the tools the plan needs: a music bed, SFX, registry blocks or footage are options, not requirements.
+Skip any part of a step that the video doesn't need.
 
 1. **Brief** — take audience, length, tone, format and the beats (one idea per scene) from the approved `plan.md`.
    If the plan routes some beats to footage or Blender, build those as the plan says and place them as scenes.

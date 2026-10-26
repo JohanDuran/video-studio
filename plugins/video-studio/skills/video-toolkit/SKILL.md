@@ -1,12 +1,17 @@
 ---
 name: video-toolkit
-description: Everything Claude can use to make and edit videos with the video-studio plugin — the media-toolbox MCP (transcription, TTS, SFX/music, ffmpeg, HyperFrames render, vertical Shorts from short.json), the DaVinci Resolve and Blender MCPs, screen recording with ffmpeg, browser capture, and the proven workflows and gotchas. Read before planning or producing any video, Short, voiceover, screen recording, overlay, render or Resolve assembly, and before saying a capability doesn't exist.
+description: Everything Claude can use to make and edit videos with the video-studio plugin — the media-toolbox MCP (transcription, TTS, SFX/music, ffmpeg, HyperFrames render, vertical Shorts from short.json, stills to motion with depth maps, cutouts and parallax camera moves), the DaVinci Resolve and Blender MCPs, screen recording with ffmpeg, browser capture, and the proven workflows and gotchas. Read before planning or producing any video, Short, voiceover, screen recording, overlay, render or Resolve assembly, and before saying a capability doesn't exist.
 ---
 
 # Video toolkit
 
 What exists and how to use it. The rules (free tools only, non-destructive, folder layout) are in the
 `editing-rules` skill — follow both.
+
+**Every tool here is optional.** This skill tells you what's available so you know your options; it never requires
+you to use any of it. Pick a tool only when you judge the video or the task needs it, and leave the rest alone. A
+simpler video that uses two tools well beats one that uses ten because they exist. When a tool might help but
+isn't clearly needed, mention it to the user as an option instead of using it.
 
 ## 0. Read the profile first
 
@@ -41,7 +46,7 @@ Project files always go in `<channel folder>/<ProjectName>/` (same name as the R
 
 | What | Kind | Use it for |
 |---|---|---|
-| **media-toolbox** | MCP server (Docker, `http://localhost:8765/mcp`, from this plugin) | Transcription, TTS, SFX/music + sound library, ffmpeg/ffprobe, HyperFrames render, vertical Shorts |
+| **media-toolbox** | MCP server (Docker, `http://localhost:8765/mcp`, from this plugin) | Transcription, TTS, SFX/music + sound library, ffmpeg/ffprobe, HyperFrames render, vertical Shorts, stills → moving parallax shots |
 | **davinci-resolve** | MCP server (third-party, installed by `/studio-setup`) | Projects, media pool, timelines, placing clips, rendering in Resolve (free 21.0.x via the in-app bridge) |
 | **blender** | MCP server (optional, `uvx mcp-for-blender`, from this plugin) | 3D scenes/renders (`execute_blender_code`, `look`) |
 | **Claude in Chrome** | Browser extension (`mcp__claude-in-chrome__*`), the user's real Chrome | **The only browser for live websites**: research, demos you then screen-record. Never the built-in browser or Playwright/Puppeteer for external sites, since they get flagged as bots (`editing-rules` §6) |
@@ -51,14 +56,18 @@ Project files always go in `<channel folder>/<ProjectName>/` (same name as the R
 ## 2. Media toolbox (the main engine)
 
 - A Docker Compose stack: a `gateway` (dashboard + REST + MCP, job queue) and workers for WhisperX, Stable Audio,
-  Kokoro TTS (GPU) and a CPU `render` worker (ffmpeg + HyperFrames + Chrome + Shorts engine).
+  Kokoro TTS, `vision` (depth maps + cutouts) on the GPU, and a CPU `render` worker (ffmpeg + HyperFrames + Chrome +
+  Shorts engine + parallax renders).
   Where it lives on this PC: `toolbox.repo_dir` in the profile. Its settings are in that folder's `.env`.
 - **If its tools are missing / `toolbox_status` fails:** Docker Desktop isn't running → ask the user to start it,
   or run `docker compose up -d` in `toolbox.repo_dir`.
 - **Paths:** pass normal Windows paths under the user's home folder. It never writes into its protected folders
   (the recordings folder from the profile).
 - **GPU:** one GPU job at a time; the gateway unloads other models first. First load ~15–30 s. Without an NVIDIA GPU,
-  transcription/SFX/TTS are unavailable but ffmpeg, HyperFrames renders and Shorts still work.
+  transcription/SFX/TTS/depth maps/cutouts are unavailable but ffmpeg, HyperFrames renders and Shorts still work.
+- **`image_depth` / `image_cutout` / `parallax` missing:** the toolbox predates them. In `toolbox.repo_dir`:
+  `git pull`, then `docker compose build vision render gateway` and `docker compose up -d` (ask first; it rebuilds
+  images and restarts the toolbox).
 - **Dashboard** http://localhost:8765: Overview (workers, GPU), Jobs (logs, outputs, audio players),
   Run a tool (forms), Sound library (audition, keep/reject), Shorts (shot thumbnails, rebuild, preview).
 - Long jobs: tools wait up to `wait_seconds`; otherwise use `wait_for_job` / `job_status`.
@@ -78,7 +87,44 @@ Project files always go in `<channel folder>/<ProjectName>/` (same name as the R
 | `short_build(project_dir, parts, only)` | Shots (V1) + overlay (V2) + narration (A1) + bed (A2); returns a Resolve `timeline` placement |
 | `short_preview(project_dir)` | Composite MP4 with sound + contact sheet (one frame per shot) — essentially the finished video |
 | `short_frames(src, times, region)` | Labelled frame grid from a recording, to plan crops/moments |
+| `image_depth(images, soften)` | Depth map per still (Depth Anything V2 Small) → `stills/<stem>_depth.png`. Pass a whole folder or list: one model load |
+| `image_cutout(images, plate, refine)` | Subject cutout (BiRefNet) → `<stem>_cut.png` + `_mask.png`; `plate=true` adds `<stem>_plate.png` (subject removed, filled) |
+| `parallax(image, mode, move, duration, strength, size, center, …)` | One still → a moving 2.5D camera shot (MP4, or MOV/WebM). Finds the depth/cutout files by name. See §2a |
 | `toolbox_status`, `list_jobs`, `job_status`, `wait_for_job`, `cancel_job` | Housekeeping |
+
+### 2a. Stills to motion (parallax)
+
+An optional tool: use it when it helps the video and the plan or the user asks for it, not on every still. It suits a
+photo that sits on screen for a while: a listing photo, a product shot, a generated image, a frozen frame. A slow
+camera move with real depth reads as footage instead of a slideshow. A plain still or a `short.json` zoom is often
+enough.
+
+1. **Crop first.** Run the vision tools on the photo itself, not a screenshot of a page. Cutouts and depth maps pick
+   up UI buttons, headers and badges otherwise. Crop with `ffmpeg` (`crop=w:h:x:y`) into the project's `capture/` or
+   `edit/` folder. Never write next to files in the recordings folder; the tools fall back to the toolbox outputs
+   for protected inputs.
+2. **`image_depth`** on all the stills at once (a folder works). It takes seconds, model load included. Outputs go to a
+   `stills/` folder next to the images. `soften` (default 0.006) rounds off depth edges so the move bends the
+   background instead of tearing a line along outlines. Use `0` only to inspect the raw map.
+3. **`parallax`** per still. It's a CPU render, about 26 s per 5 s clip at 1080×1920.
+   - **`mode: depth` (default)**: every pixel moves by its depth. Best for places: houses, streets, rooms,
+     landscapes. Keep `strength` near 1 (1.5 at most); higher values stretch near/far edges.
+   - **`mode: layers`**: the cutout slides over the filled-in plate (needs `image_cutout` with `plate=true`). Only
+     for **one clean, fully cut-out subject**, like a person or a product on a plain background. On a house photo the cutout
+     drops bushes and keeps stray leaves, so the house slides in front of its own garden, and the plate is smeary under
+     big subjects. Check `subject_fraction` and look at the `_cut.png` before choosing layers.
+   - **`move`**: `push-in` / `pull-out` (reveal or emphasis), `pan-left/right/up/down` (follow a line, a street), `drift`
+     (gentle push plus slide, the default choice for "make this still alive").
+   - **`size`**: `1080x1920` (Shorts, default), `1920x1080`, any `WxH`, or `source`. A landscape photo in a vertical frame
+     is cover-cropped: aim it with `center: [x, y]` (0–1), e.g. `[0.45, 0.5]` to keep the front door in frame.
+   - **`duration`**: the beat's length plus a little handle. **`fps`**: match the timeline (30 for Shorts).
+4. **Check** the first, middle and last frame (`ffmpeg … select=eq(n\,0)+eq(n\,N)…,tile`) for edge stretching and
+   privacy. The crop at the end of a push-in is not the crop at the start.
+5. **Use the clip** as a source: in `short.json`, as a full-frame layer (`card_w` 1080, `cy` 960) with `ss` 0. In
+   Resolve, import it like any shot. In HyperFrames, use it as a `<video muted>`.
+
+Small source images upscale soft: a 600 px wide photo is blurry at 1080×1920. Use the largest original you have
+(the listing's full-size photo, not a thumbnail).
 
 ## 3. Vertical Short pipeline (summary — `/short` runs it)
 
@@ -87,7 +133,7 @@ is recorded or generated before that, and the screen is recorded only for beats 
 
 Hook in the first 2 s, fast pace, no dead air, ~20–60 s. Approved plan → script → voice (`speak`, trim silences) →
 word timings (`transcribe` the narration) → each beat's visual source as planned (existing footage, HyperFrames or
-Blender renders, stills, planned screen captures) → `short.json` (anchor every cut, zoom, label and SFX to words,
+Blender renders, stills (as parallax shots when the plan asks, §2a), planned screen captures) → `short.json` (anchor every cut, zoom, label and SFX to words,
 e.g. `word:so - 0.05`, `word:use#2`) → `short_build` → `short_preview` → privacy check → final.
 Anchoring to words means a new voice take re-times the whole edit by rebuilding.
 

@@ -34,7 +34,8 @@ Let the user push back and change direction. Keep going until the idea is agreed
 ## 2. Pick the tools per beat
 
 Break the video into beats (one idea each; hook first). For **every beat** choose its visual source and say why.
-Pick from what this setup can actually do (`video-toolkit` §1):
+Pick from what this setup can actually do (`video-toolkit` §1). The table is a menu, not a checklist: choose only
+what each beat needs, and it's fine for a video to use just one or two of these.
 
 | Source | Good for | Needs |
 |---|---|---|
@@ -44,6 +45,7 @@ Pick from what this setup can actually do (`video-toolkit` §1):
 | **HyperFrames motion graphics** | Concepts, steps, lists, numbers, comparisons, diagrams, titles, captions | Nothing but time to build; local render only |
 | **Blender 3D** | Objects, products, spatial ideas, a mascot | Blender + the MCP running; slower |
 | **Stills / screenshots / diagrams** | A single moment, a before/after, a quote | The image, or a screenshot taken in step 3 |
+| **Still → parallax shot** (`image_depth` + `parallax`) | A photo that should feel like footage: a listing's exterior or rooms, a product, a place | A real photo (large, cropped to the photo itself). GPU for the depth map; ~30 s render per shot |
 | **Narration** | Kokoro (`voice.default`) for fast iteration, or the user's own voice | Kokoro needs the GPU tools; the user's voice needs a recording session |
 | **Music & SFX** | Pace and emphasis | Sound library first (`sfx_search`), Stable Audio if nothing fits |
 
@@ -51,6 +53,10 @@ Rules of thumb:
 - **Don't plan a screen recording unless a real screen is the point of the beat.** An idea, a number or a concept is
   usually a HyperFrames graphic, not a recording.
 - Prefer material that already exists over new material; prefer graphics over footage that's hard to get.
+- **Parallax is an option, not a default.** When a photo would sit on screen for a while and some motion would help,
+  you can suggest a parallax shot (name the move, e.g. "push-in on the front door") and let the user choose. A static
+  still, a zoom in `short.json`, or no photo at all are just as valid. Don't use it on text-heavy screenshots (prices,
+  fact tables, maps): depth moves warp text.
 - Respect `house_rules` and `channel.never_show`.
 - Mark everything that needs the **user's hands** (filming, speaking, clicking during a demo).
 
