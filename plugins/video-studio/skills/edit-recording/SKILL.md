@@ -24,6 +24,9 @@ calls for it.
 
 ## Steps
 
+Steps 6–7 (overlays, SFX) are optional: do them only when the plan or the user wants them. A recording that only
+needs tightening ends at step 5 plus the render.
+
 1. **Get the timeline** — current project + timeline from Resolve. If there's no project yet, create one from the
    recordings: set timeline fps (`recordings.fps` / `resolve.timeline_fps`) and resolution **before** importing, then
    ask the user to set Playback frame rate to match (the API can't). Import the screen file(s) and, if

@@ -23,6 +23,9 @@ Project folder: `<channel folder>/<ProjectName>/` (`video-toolkit` §0; agree a 
 
 ## Steps
 
+Use only the tools the plan's beats need: music, SFX, graphics, captions, footage types and Resolve are all optional.
+Skip any part of a step that the video doesn't need.
+
 1. **Shot list** — from the approved plan, write `shot_list.md`: per spoken line, what's on screen and its source
    (an existing file, a HyperFrames render, a Blender render, a still, or a screen capture the plan asks for).
    Hook in the first 2 s, fast pace, no dead air.
@@ -35,6 +38,10 @@ Project folder: `<channel folder>/<ProjectName>/` (`video-toolkit` §0; agree a 
    - existing recordings or camera/phone clips: find regions and moments with `short_frames` or contact sheets;
    - HyperFrames graphics: build and `render_hyperframes` them into `edit/` (they become shot sources);
    - Blender renders or stills: produce them into `edit/` or `capture/`;
+   - photos the plan marks as parallax shots: crop each to the photo itself, run `image_depth` on all of them in one
+     call, then `parallax` per still (default depth mode, `size` 1080x1920, `fps` 30, `duration` = the beat plus
+     ~0.5 s, `center` aimed at the subject) into `edit/`. Look at first/middle/last frames before using a clip, then
+     use it as a full-frame shot source (`video-toolkit` §2a);
    - screen capture **only for beats the plan marks as screen recording**: record into `capture/`
      (`video-toolkit` §4) after asking for a hands-off window. Never record the screen on your own initiative.
 6. **`short.json`** — sources, crop regions, privacy blurs, anchors (`word:so - 0.05`, `word:use#2`), shots back to
@@ -43,7 +50,7 @@ Project folder: `<channel folder>/<ProjectName>/` (`video-toolkit` §0; agree a 
    record verdicts with `sfx_mark`.
 7. **Build** — `short_info` (sanity check) → `short_build` → `short_preview`. Read the contact sheet and check frames;
    fix single shots with `only`. Show the preview to the user.
-8. **Privacy check** — every shot's first AND last frame (zoom changes what's visible) for anything in
+8. **Privacy check** — every shot's first AND last frame (zooms and parallax moves change what's visible) for anything in
    `channel.never_show`: town/addresses, device name, email, other chats/tabs, other people's content. Prefer frozen
    stills where the user scrolled; blur with `blur` rects.
 9. **Final** — either the preview render is the final (check loudness ≈ −14 LUFS, peak ≤ −1 dB with

@@ -41,6 +41,10 @@ Follow these without re-asking. For what tools exist and how to use them, read `
 - **Transcription:** WhisperX via toolbox `transcribe`, not Resolve's or HeyGen's. No speaker diarization unless asked.
 - **Generated SFX/music:** Stable Audio Open 1.0 via toolbox `sfx_generate` (its Hugging Face license is accepted
   during `/studio-setup`).
+- **Depth maps and cutouts:** toolbox `image_depth` (Depth Anything V2 **Small**, Apache 2.0) and `image_cutout`
+  (BiRefNet, MIT). Never swap in Depth Anything V2 Base or Large, or RMBG-2.0: their weights are non-commercial.
+- **Parallax is a camera move, not new content.** Don't use it to fake what a place looks like: on real-estate or
+  product videos, the photo must be the real one, unaltered except for the crop and the move.
 
 ## 2. Folder layout
 
