@@ -23,7 +23,7 @@ explainer workflow from the `hyperframes` skill (installed by `/studio-setup`) b
 | HeyGen TTS / voices | toolbox `speak` with `voice.default` / `voice.speed` |
 | HeyGen / hosted transcription | toolbox `transcribe` (word timings) |
 | `media-use resolve --type bgm\|sfx`, generated music | toolbox `sfx_search` → `sfx_generate` |
-| AI image/video generation, avatars | skip; use typography, shapes, diagrams, icons, data-viz. A real photo the plan names can become a moving scene with toolbox `image_depth` + `parallax` (`video-toolkit` §2a) |
+| AI image/video generation, avatars | Usually typography, shapes, diagrams, icons, data-viz. When a scene needs an image that doesn't exist, toolbox `image_generate` (local FLUX, optional, `video-toolkit` §2b). A real photo the plan names can become a moving scene with `image_depth` + `parallax` (§2a). No avatars or generated video |
 | `hyperframes cloud render`, lambda, cloudrun, `auth login` | toolbox `render_hyperframes` (local) |
 
 If HyperFrames isn't installed, stop and offer `/studio-setup`.

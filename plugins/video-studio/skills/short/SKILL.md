@@ -42,6 +42,8 @@ Skip any part of a step that the video doesn't need.
      call, then `parallax` per still (default depth mode, `size` 1080x1920, `fps` 30, `duration` = the beat plus
      ~0.5 s, `center` aimed at the subject) into `edit/`. Look at first/middle/last frames before using a clip, then
      use it as a full-frame shot source (`video-toolkit` §2a);
+   - images the plan marks as generated: `image_generate` with `size: 9:16` into `edit/`, drafts first, then the
+     chosen seed as `final` (`video-toolkit` §2b);
    - screen capture **only for beats the plan marks as screen recording**: record into `capture/`
      (`video-toolkit` §4) after asking for a hands-off window. Never record the screen on your own initiative.
 6. **`short.json`** — sources, crop regions, privacy blurs, anchors (`word:so - 0.05`, `word:use#2`), shots back to
