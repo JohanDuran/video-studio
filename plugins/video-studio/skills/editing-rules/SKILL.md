@@ -45,6 +45,10 @@ Follow these without re-asking. For what tools exist and how to use them, read `
   (BiRefNet, MIT). Never swap in Depth Anything V2 Base or Large, or RMBG-2.0: their weights are non-commercial.
 - **Parallax is a camera move, not new content.** Don't use it to fake what a place looks like: on real-estate or
   product videos, the photo must be the real one, unaltered except for the crop and the move.
+- **Generated images:** local FLUX.1 [dev] via toolbox `image_generate` is free and allowed. Its weights are
+  non-commercial, but under its license the images it makes may be used in monetized videos. Never generate or
+  edit images that stand in for real things (a listing, a property, a product, a person, a screenshot of an app):
+  those always come from their real source. Don't use paid image services.
 
 ## 2. Folder layout
 

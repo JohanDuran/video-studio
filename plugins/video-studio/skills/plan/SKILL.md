@@ -46,6 +46,7 @@ what each beat needs, and it's fine for a video to use just one or two of these.
 | **Blender 3D** | Objects, products, spatial ideas, a mascot | Blender + the MCP running; slower |
 | **Stills / screenshots / diagrams** | A single moment, a before/after, a quote | The image, or a screenshot taken in step 3 |
 | **Still → parallax shot** (`image_depth` + `parallax`) | A photo that should feel like footage: a listing's exterior or rooms, a product, a place | A real photo (large, cropped to the photo itself). GPU for the depth map; ~30 s render per shot |
+| **Generated image** (`image_generate`, FLUX) | A concept or imagined scene with no real source, a background for a graphic, thumbnail ideas | The toolbox's `flux` profile; ~30–45 s per image. Never for real things (a listing, a product, a person) |
 | **Narration** | Kokoro (`voice.default`) for fast iteration, or the user's own voice | Kokoro needs the GPU tools; the user's voice needs a recording session |
 | **Music & SFX** | Pace and emphasis | Sound library first (`sfx_search`), Stable Audio if nothing fits |
 

@@ -31,7 +31,7 @@ Run these and collect the results before asking anything:
 |---|---|---|
 | Docker | `docker version --format '{{.Server.Version}}'` | Ask the user to install/start Docker Desktop (WSL 2 backend on Windows) |
 | Media toolbox | `toolbox_status` MCP tool (or open http://localhost:8765) | Not installed → §1a. Installed but down → start Docker Desktop, or `docker compose up -d` in its folder |
-| NVIDIA GPU | `nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader` | No GPU → the toolbox runs CPU-only: no transcription, TTS, SFX generation, depth maps or cutouts; ffmpeg, HyperFrames renders and Shorts still work |
+| NVIDIA GPU | `nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader` | No GPU → the toolbox runs CPU-only: no transcription, TTS, SFX generation, depth maps, cutouts or FLUX images; ffmpeg, HyperFrames renders and Shorts still work |
 | Node.js ≥ 20 | `node --version` | Needed for HyperFrames and the Resolve MCP installer → install Node LTS |
 | ffmpeg on the host | `ffmpeg -version` | Needed for screen recording → `winget install Gyan.FFmpeg` |
 | uv (optional) | `uvx --version` | Only for the Blender MCP → `winget install astral-sh.uv` |

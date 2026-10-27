@@ -1,6 +1,6 @@
 ---
 name: video-toolkit
-description: Everything Claude can use to make and edit videos with the video-studio plugin — the media-toolbox MCP (transcription, TTS, SFX/music, ffmpeg, HyperFrames render, vertical Shorts from short.json, stills to motion with depth maps, cutouts and parallax camera moves), the DaVinci Resolve and Blender MCPs, screen recording with ffmpeg, browser capture, and the proven workflows and gotchas. Read before planning or producing any video, Short, voiceover, screen recording, overlay, render or Resolve assembly, and before saying a capability doesn't exist.
+description: Everything Claude can use to make and edit videos with the video-studio plugin — the media-toolbox MCP (transcription, TTS, SFX/music, ffmpeg, HyperFrames render, vertical Shorts from short.json, stills to motion with depth maps, cutouts and parallax camera moves, optional FLUX image generation), the DaVinci Resolve and Blender MCPs, screen recording with ffmpeg, browser capture, and the proven workflows and gotchas. Read before planning or producing any video, Short, voiceover, screen recording, overlay, render or Resolve assembly, and before saying a capability doesn't exist.
 ---
 
 # Video toolkit
@@ -57,7 +57,8 @@ Project files always go in `<channel folder>/<ProjectName>/` (same name as the R
 
 - A Docker Compose stack: a `gateway` (dashboard + REST + MCP, job queue) and workers for WhisperX, Stable Audio,
   Kokoro TTS, `vision` (depth maps + cutouts) on the GPU, and a CPU `render` worker (ffmpeg + HyperFrames + Chrome +
-  Shorts engine + parallax renders).
+  Shorts engine + parallax renders). With the optional `flux` profile, also `comfyui` (FLUX image generation) and
+  the `image` worker that drives it.
   Where it lives on this PC: `toolbox.repo_dir` in the profile. Its settings are in that folder's `.env`.
 - **If its tools are missing / `toolbox_status` fails:** Docker Desktop isn't running → ask the user to start it,
   or run `docker compose up -d` in `toolbox.repo_dir`.
@@ -68,6 +69,9 @@ Project files always go in `<channel folder>/<ProjectName>/` (same name as the R
 - **`image_depth` / `image_cutout` / `parallax` missing:** the toolbox predates them. In `toolbox.repo_dir`:
   `git pull`, then `docker compose build vision render gateway` and `docker compose up -d` (ask first; it rebuilds
   images and restarts the toolbox).
+- **`image_generate` missing or failing with "the image worker isn't running":** FLUX is an opt-in profile. With the
+  user's OK: `git pull` in `toolbox.repo_dir`, set `COMPOSE_PROFILES=gpu,flux` in its `.env`, then
+  `docker compose up -d`. The first start downloads ~11.5 GB of models.
 - **Dashboard** http://localhost:8765: Overview (workers, GPU), Jobs (logs, outputs, audio players),
   Run a tool (forms), Sound library (audition, keep/reject), Shorts (shot thumbnails, rebuild, preview).
 - Long jobs: tools wait up to `wait_seconds`; otherwise use `wait_for_job` / `job_status`.
@@ -90,6 +94,7 @@ Project files always go in `<channel folder>/<ProjectName>/` (same name as the R
 | `image_depth(images, soften)` | Depth map per still (Depth Anything V2 Small) → `stills/<stem>_depth.png`. Pass a whole folder or list: one model load |
 | `image_cutout(images, plate, refine)` | Subject cutout (BiRefNet) → `<stem>_cut.png` + `_mask.png`; `plate=true` adds `<stem>_plate.png` (subject removed, filled) |
 | `parallax(image, mode, move, duration, strength, size, center, …)` | One still → a moving 2.5D camera shot (MP4, or MOV/WebM). Finds the depth/cutout files by name. See §2a |
+| `image_generate(prompt, size, quality, count, seed, …)` | FLUX.1 [dev] images (optional `flux` profile) → `<name>_s<seed>.png` + `.json`. See §2b |
 | `toolbox_status`, `list_jobs`, `job_status`, `wait_for_job`, `cancel_job` | Housekeeping |
 
 ### 2a. Stills to motion (parallax)
@@ -125,6 +130,26 @@ enough.
 
 Small source images upscale soft: a 600 px wide photo is blurry at 1080×1920. Use the largest original you have
 (the listing's full-size photo, not a thumbnail).
+
+### 2b. Generated images (FLUX)
+
+An optional tool, for when a beat needs an image that doesn't exist and can't be shown any other way: a concept
+illustration, a background behind a HyperFrames graphic, a thumbnail idea, an imagined scene. Most videos don't need
+it. Real things (a listing, a product, a person, an app) are shown from their real source, never generated.
+
+- **It's slow-ish**, so explore cheaply. `quality: draft` (default) is ~28 s per image at 1024×576. Make 2–4 drafts
+  with `count`, look at them (read the PNGs), then re-run the chosen seed with `quality: final` (~45 s, 1344×768
+  for 16:9). The first image after another GPU tool ran takes ~30 s longer (model load).
+- **`size`**: `16:9`, `9:16` (Shorts), `1:1`, `4:3`, `3:4`, `thumbnail` (final is cropped to 1280×720), or `WxH`
+  (256–2048).
+- **Prompts**: descriptive sentences (subject, setting, light, style), not tag lists. Put text that should appear in
+  the image in quotes; FLUX renders short words well and long text badly, so add real text as HyperFrames type
+  instead. No negative prompts, no transparent backgrounds (use `image_cutout` afterwards if you need a cutout).
+- **Outputs**: pass `out_dir` as the project's `edit/` or `images/` folder (default: the toolbox outputs). Each PNG
+  has a `.json` with prompt and seed, so any image can be re-made at another size.
+- **Combine**: a generated still can go through §2a (`image_depth` + `parallax`) to get a camera move.
+- `turbo` (default on, 8 steps) is ~3× faster than plain FLUX (`turbo: false`, 20 steps) with similar quality; turn
+  it off only to compare.
 
 ## 3. Vertical Short pipeline (summary — `/short` runs it)
 
