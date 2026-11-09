@@ -1,6 +1,6 @@
 ---
 name: short
-description: "Build a vertical Short (9:16, ~20–60 s) from an approved plan.md with the media toolbox: script, Kokoro voiceover, word timings, footage only where the plan calls for it, a short.json edit, short_build and short_preview, a privacy check, then the final render or a Resolve assembly. Starts with the plan skill when there's no approved plan. Use when the user runs /short <topic> or asks for a Short, Reel or TikTok."
+description: "Build a vertical Short (9:16, ~20–60 s) from an approved plan.md with the media toolbox: script, a voiceover in the voice the user picked (Kokoro, a cloned voice or their own), word timings, footage only where the plan calls for it, a short.json edit, short_build and short_preview, a privacy check, then the final render or a Resolve assembly. Starts with the plan skill when there's no approved plan. Use when the user runs /short <topic> or asks for a Short, Reel or TikTok."
 argument-hint: "<topic>"
 ---
 
@@ -30,8 +30,11 @@ Skip any part of a step that the video doesn't need.
    (an existing file, a HyperFrames render, a Blender render, a still, or a screen capture the plan asks for).
    Hook in the first 2 s, fast pace, no dead air.
 2. **Script** → `script.json`: one short spoken line per entry.
-3. **Voice** — `speak` each line with `voice.default` / `voice.speed` into `audio/lines/`, trim each line's silences
-   (filter in `video-toolkit` §3), join with ~0.1 s gaps → `audio/narration.wav`. Let the user listen to it.
+3. **Voice** — the voice the plan's `## Narration` names (the user chose it; if it's missing, ask, don't pick).
+   Voice each line into `audio/lines/`: Kokoro → `speak` with that voice and speed; cloned voice → `speak_clone` with
+   `voice=<profile>` (numbers are spelled out for you; keep one `seed` for the whole script); user records it → their
+   takes, cut per line. Trim each line's silences (filter in `video-toolkit` §3), join with ~0.1 s gaps →
+   `audio/narration.wav`. Let the user listen to it.
 4. **Word timings** — `transcribe` `audio/narration.wav` with `language` from the profile and `vocab` =
    `transcription.vocab` plus any new names in the script → `transcripts/narration.words.tsv`.
 5. **Visual sources, as the plan says** — for each beat, only the source the plan chose:

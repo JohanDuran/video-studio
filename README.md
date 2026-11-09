@@ -36,7 +36,7 @@ viewer, it moves to the taskbar instead, so you can see it, and stays outside th
   renders and Shorts still work, but transcription, voiceover and sound generation don't.
 - [Claude Code](https://claude.com/claude-code), Docker Desktop, Node.js 20+, ffmpeg.
 - The **media-toolbox** engine: https://github.com/JohanDuran/media-toolbox (Docker stack: WhisperX, Kokoro TTS,
-  Stable Audio Open, depth maps + cutouts for parallax shots, ffmpeg, HyperFrames renderer, Shorts engine).
+  cloned voices with Chatterbox Turbo (v0.2.0+), Stable Audio Open, depth maps + cutouts for parallax shots, ffmpeg, HyperFrames renderer, Shorts engine).
   `/studio-setup` walks you through installing it.
 - Optional: DaVinci Resolve **free 21.0.x** (don't update to 21.1+, which made scripting Studio-only), Blender + uv,
   a free Hugging Face account for Stable Audio.
@@ -67,14 +67,14 @@ Update later with `claude plugin marketplace update video-studio` and `claude pl
 
 - `<studio>/<channel>/studio.json` — the channel's profile (template: `plugins/video-studio/templates/studio.json`):
   channel name and language, recordings folder and which audio stream is the mic, whether the camera is a separate file,
-  default voice and speed, transcription vocabulary, screen geometry, toolbox and Resolve settings, and `house_rules` —
+  default voice and speed (plus an optional cloned voice, `voice.clone`), transcription vocabulary, screen geometry, toolbox and Resolve settings, and `house_rules` —
   standing preferences Claude adds to as you state them.
 - `~/.video-studio/config.json` — the studio root, your channels and the default one, so the plugin finds a profile
   from any working folder.
 
 ```
 ~/media-studio/            the studio
-  sfx_library/  recordings/  _scratch/      shared by all channels
+  sfx_library/  recordings/  voices/  _scratch/   shared by all channels (voices/ = cloned-voice profiles)
   my-channel/              studio.json + one folder per video: my-channel/<ProjectName>/
   second-channel/          its own studio.json, voice, house rules, videos
 ```
@@ -86,7 +86,8 @@ chat opened anywhere else uses the default channel. Generated sounds and raw rec
 ## Free tools only
 
 The plugin never uses paid services: HyperFrames renders locally (no HeyGen cloud rendering or credits), voice is
-Kokoro, transcription is WhisperX, sound effects are Stable Audio Open, editing is free DaVinci Resolve.
+Kokoro, a local Chatterbox clone of your own voice, or you (you pick it per video). Transcription is WhisperX, sound
+effects are Stable Audio Open, editing is free DaVinci Resolve.
 
 Third-party pieces it installs or calls: [HyperFrames](https://github.com/heygen-com/hyperframes) skills,
 [davinci-resolve-mcp](https://github.com/samuelgursky/davinci-resolve-mcp), mcp-for-blender. Check their licenses;

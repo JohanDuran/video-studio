@@ -31,13 +31,17 @@ Follow these without re-asking. For what tools exist and how to use them, read `
   - Never run `hyperframes cloud render`, `lambda`, `cloudrun`, or `hyperframes auth login`.
   - Never use HeyGen-credit features: HeyGen TTS/voices, avatars, `media-use resolve --type bgm|sfx`
     (needs the heygen CLI), or AI image/music/video generation that costs credits. Use the toolbox instead:
-    `speak` for voice, `sfx_search`/`sfx_generate` for sound, `transcribe` for transcripts.
+    `speak` / `speak_clone` for voice, `sfx_search`/`sfx_generate` for sound, `transcribe` for transcripts.
   - If a HyperFrames workflow step needs one of these, skip it or use the free alternative and say so.
   - Don't push the HyperFrames desktop app or `hyperframes open`: the pipeline is Claude + CLI render + Resolve MCP.
     The web Studio preview is fine for the user's own small tweaks.
 - **Other tools:** prefer what's installed (ffmpeg, Node, Docker). Don't sign up for or connect paid services.
-- **Voice:** Kokoro (local, Apache 2.0) via `speak`, with the profile's voice and speed. Don't use non-commercial
-  TTS weights for channel videos.
+- **Voice: the user chooses it** (in the plan), never Claude. The options are Kokoro (local, Apache 2.0) via `speak`
+  with the profile's voice and speed; a cloned voice via `speak_clone` (Chatterbox Turbo, local, MIT) with a profile
+  from `<studio_dir>/voices/`; or the user's own recording. Don't use non-commercial TTS weights for channel videos.
+- **Cloned voices need consent.** Only clone the user's own voice, or a voice whose owner gave written permission.
+  Never clone anyone from their videos, podcasts or interviews, whatever the user asks. When a video uses a realistic
+  cloned voice, remind the user to tick YouTube's "altered or synthetic content" box at upload.
 - **Transcription:** WhisperX via toolbox `transcribe`, not Resolve's or HeyGen's. No speaker diarization unless asked.
 - **Generated SFX/music:** Stable Audio Open 1.0 via toolbox `sfx_generate` (its Hugging Face license is accepted
   during `/studio-setup`).

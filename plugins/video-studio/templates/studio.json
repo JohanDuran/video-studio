@@ -26,7 +26,8 @@
   "voice": {
     "default": "af_heart",
     "speed": 1.0,
-    "other_languages": {}
+    "other_languages": {},
+    "clone": ""
   },
   "transcription": {
     "language": "en",
