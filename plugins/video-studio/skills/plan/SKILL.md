@@ -1,6 +1,6 @@
 ---
 name: plan
-description: "Plan a new video together with the user before anything is produced: discuss the idea, goal, audience, platform and what material already exists, then choose for each beat the tool that fits (screen recording, existing footage, camera/phone clips, HyperFrames motion graphics, Blender 3D, stills, Kokoro voice or the user's own voice, music/SFX) and write plan.md with the reasons. Produces only a plan — nothing is recorded, voiced or rendered. Use when the user runs /plan, wants a new video, has a video idea to discuss, or runs /short, /explainer or /edit-recording without an approved plan."
+description: "Plan a new video together with the user before anything is produced: discuss the idea, goal, audience, platform and what material already exists, then choose for each beat the tool that fits (screen recording, existing footage, camera/phone clips, HyperFrames motion graphics, Blender 3D, stills, a Kokoro voice, a cloned voice or the user's own recorded voice, music/SFX) and write plan.md with the reasons. Produces only a plan — nothing is recorded, voiced or rendered. Use when the user runs /plan, wants a new video, has a video idea to discuss, or runs /short, /explainer or /edit-recording without an approved plan."
 argument-hint: "[idea or topic]"
 ---
 
@@ -25,7 +25,8 @@ Ask, in one or two short rounds (use the question tool where available; skip wha
 - **What already exists** — recordings in `recordings.folder`, camera or phone clips, screenshots, earlier renders,
   a Resolve project, or nothing. Look in the recordings folder and the channel folder instead of asking when you can
   (list files, `ffprobe` durations, `short_frames` contact sheets) — read-only.
-- **The user's part** — will they be on camera, speak the narration themselves, or prefer Kokoro? Any time limits?
+- **The user's part** — will they be on camera? Who narrates is the user's call (see **The narration voice** below).
+  Any time limits?
 
 Then **discuss the idea**: say what you think the strongest angle and hook are, offer one or two alternatives, and point
 out anything that won't work well (too long for a Short, nothing visual to show, needs footage that doesn't exist).
@@ -47,7 +48,7 @@ what each beat needs, and it's fine for a video to use just one or two of these.
 | **Stills / screenshots / diagrams** | A single moment, a before/after, a quote | The image, or a screenshot taken in step 3 |
 | **Still → parallax shot** (`image_depth` + `parallax`) | A photo that should feel like footage: a listing's exterior or rooms, a product, a place | A real photo (large, cropped to the photo itself). GPU for the depth map; ~30 s render per shot |
 | **Generated image** (`image_generate`, FLUX) | A concept or imagined scene with no real source, a background for a graphic, thumbnail ideas | The toolbox's `flux` profile; ~30–45 s per image. Never for real things (a listing, a product, a person) |
-| **Narration** | Kokoro (`voice.default`) for fast iteration, or the user's own voice | Kokoro needs the GPU tools; the user's voice needs a recording session |
+| **Narration** | Kokoro (`voice.default`), a cloned voice (`speak_clone` with a voice profile), or the user recording it | The user picks (see below). Kokoro and clones need the GPU tools; a recording needs a session |
 | **Music & SFX** | Pace and emphasis | Sound library first (`sfx_search`), Stable Audio if nothing fits |
 
 Rules of thumb:
@@ -62,6 +63,21 @@ Rules of thumb:
 - Mark everything that needs the **user's hands** (filming, speaking, clicking during a demo).
 
 Also list the tools you're **not** using and why (e.g. "No screen recording: nothing on screen to show").
+
+### The narration voice: the user decides
+
+Never pick the voice yourself, and don't present one as the default choice. Lay out the options this channel actually
+has, with one line each on the trade-off, and let the user choose:
+
+- **Kokoro** — `voice.default` at `voice.speed` (or another Kokoro voice they name). Fast, any of its languages.
+- **A cloned voice** — only when a profile exists: `voice.clone` in the profile and/or `<studio_dir>/voices/<name>.wav`
+  (list that folder). Chatterbox Turbo via `speak_clone`, English only. It sounds like that person, carries an inaudible
+  AI watermark, and a realistic clone needs YouTube's "altered or synthetic content" box ticked at upload.
+- **The user records it** — their real voice. It needs a recording session, which goes on the "what you need to do" list.
+
+If they want to hear the options first, offer to voice one line from the script with each option into
+`<studio_dir>/_scratch/voice_samples/`. These samples are the only audio this skill may make. Write their choice in
+`## Narration`. If they haven't chosen, it stays under `## Open questions`, and the plan can't be approved until it's decided.
 
 ## 3. Write `plan.md`
 
@@ -79,7 +95,7 @@ Channel: <name> · Format: 9:16 Short | 16:9 video · Target length: ~45 s · La
 | # | Beat (what's said) | Visual | Source / tool | Why this tool | ~s |
 |---|---|---|---|---|---|
 ## Narration
-Kokoro <voice> at <speed> | user's own voice
+(chosen by the user) Kokoro <voice> at <speed> | cloned voice <profile> (speak_clone) | user records it
 ## Music and SFX
 ## Not used, and why
 ## What the user needs to do

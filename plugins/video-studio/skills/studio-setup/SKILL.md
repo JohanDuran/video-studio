@@ -72,6 +72,12 @@ Ask in one or two rounds (use the question tool where available), with sensible 
 4. **Voice** — offer 3–4 Kokoro voices for their language, `speak` one line with each into the studio's scratch folder
    (`<studio>/_setup/`), let them listen and pick; also the speed (default 1.0).
    English picks to audition: `af_heart`, `af_bella`, `am_fenrir`, `am_michael`, `bm_george`. Spanish: `ef_dora`, `em_alex`.
+   **Optional cloned voice (English):** if the user wants their own voice available too, take 10–20 s of their clean
+   speech: a new recording, or a stretch of one of their videos (good mic, no music; `transcribe` helps find a fluent
+   stretch). Cut it with `ffmpeg` (mono, `loudnorm=I=-18:TP=-1.5`) to `<studio>/voices/<channel-slug>.wav`, with a
+   `.txt` noting the source. Let them hear one `speak_clone` line, then set `voice.clone` to the profile name. Only
+   the user's own voice, or one whose owner gave written consent. The clone is an option they pick per video, not
+   the default.
 5. **Transcription vocab** — names and jargon they say often (products, people, their channel name).
 6. **Screen** — read it rather than asking: resolution and scale via PowerShell
    (`Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Screen]::PrimaryScreen`), taskbar position,

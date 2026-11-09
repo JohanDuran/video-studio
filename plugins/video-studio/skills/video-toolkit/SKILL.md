@@ -56,7 +56,7 @@ Project files always go in `<channel folder>/<ProjectName>/` (same name as the R
 ## 2. Media toolbox (the main engine)
 
 - A Docker Compose stack: a `gateway` (dashboard + REST + MCP, job queue) and workers for WhisperX, Stable Audio,
-  Kokoro TTS, `vision` (depth maps + cutouts) on the GPU, and a CPU `render` worker (ffmpeg + HyperFrames + Chrome +
+  Kokoro TTS, `voice-clone` (Chatterbox Turbo, cloned voices), `vision` (depth maps + cutouts) on the GPU, and a CPU `render` worker (ffmpeg + HyperFrames + Chrome +
   Shorts engine + parallax renders). With the optional `flux` profile, also `comfyui` (FLUX image generation) and
   the `image` worker that drives it.
   Where it lives on this PC: `toolbox.repo_dir` in the profile. Its settings are in that folder's `.env`.
@@ -69,6 +69,8 @@ Project files always go in `<channel folder>/<ProjectName>/` (same name as the R
 - **`image_depth` / `image_cutout` / `parallax` missing:** the toolbox predates them. In `toolbox.repo_dir`:
   `git pull`, then `docker compose build vision render gateway` and `docker compose up -d` (ask first; it rebuilds
   images and restarts the toolbox).
+- **`speak_clone` missing:** the toolbox predates v0.2.0. With the user's OK: `git pull` in `toolbox.repo_dir`, then
+  `docker compose pull && docker compose up -d` (or `docker compose build voice-clone gateway`).
 - **`image_generate` missing or failing with "the image worker isn't running":** FLUX is an opt-in profile. With the
   user's OK: `git pull` in `toolbox.repo_dir`, set `COMPOSE_PROFILES=gpu,flux` in its `.env`, then
   `docker compose up -d`. The first start downloads ~11.5 GB of models.
@@ -84,6 +86,7 @@ Project files always go in `<channel folder>/<ProjectName>/` (same name as the R
 | `transcribe(files, out_dir, language, vocab)` | WhisperX large-v3, word timings → `<name>.json/.srt/.words.tsv`. Pass `vocab` from the profile |
 | `timeline_transcript(project_dir, timeline)` | Map per-file transcripts onto a captured Resolve timeline (timeline time) |
 | `speak(text, voice, speed, out_path)` | Kokoro-82M. Voice and speed from the profile (`voice.default`, `voice.speed`) |
+| `speak_clone(text, voice, ref_path, seed, out_path)` | A cloned voice (Chatterbox Turbo, English). `voice` = a profile in `<studio_dir>/voices/`. Only when the user chose it. See §2c |
 | `sfx_search` → `sfx_generate` → `sfx_mark` / `sfx_scan` | Shared sound library (`toolbox.sfx_library`, + `index.jsonl`). Search first; record verdicts; never delete |
 | `ffmpeg(args)`, `ffprobe(path)` | Container ffmpeg; Windows paths are converted (not inside filter strings) |
 | `render_hyperframes(project_dir, format, fps, …)` | Local HyperFrames render (`mov` = alpha) |
@@ -151,12 +154,31 @@ it. Real things (a listing, a product, a person, an app) are shown from their re
 - `turbo` (default on, 8 steps) is ~3× faster than plain FLUX (`turbo: false`, 20 steps) with similar quality; turn
   it off only to compare.
 
+### 2c. Cloned voices (`speak_clone`)
+
+An option for narration, **picked by the user** in the plan, never by Claude. Kokoro stays the default.
+
+- **Profiles:** `<studio_dir>/voices/<name>.wav` (+ `<name>.txt` with its source), and `voice.clone` in a channel profile
+  names that channel's own clone. Call `speak_clone` without `voice` to list the profiles. Only consented voices
+  (`editing-rules`).
+- **A good profile:** 10–20 s of one person's clean speech, recorded the way the voiceover should sound (the clone
+  copies pace, energy and accent), mono, loudness-normalized (`loudnorm=I=-18:TP=-1.5`). Only the first ~15 s are used.
+- **Numbers are spelled out automatically** (`$43,300`, `7.32%`, `2026`, `3rd`). To force a reading, write it as
+  words. `spell_numbers: false` turns it off.
+- **Speed:** ~25 s cold start, then ~1 s per 3 s of speech, ~4 GB VRAM. It has no speed setting: change the pace in the
+  script (shorter sentences) or in the edit.
+- **Consistency:** use one `seed` for all lines of a video. If a line sounds off (a slurred word, an odd stress), redo
+  just that line with another `seed`, or reword it.
+- **English only.** For another language, use Kokoro or the user's own recording.
+- Every output carries Resemble's inaudible Perth watermark. Remind the user of YouTube's "altered or synthetic
+  content" disclosure when the video uses a realistic clone.
+
 ## 3. Vertical Short pipeline (summary — `/short` runs it)
 
 Every new video starts with the `plan` skill: an approved `plan.md` that picked a visual source per beat. Nothing
 is recorded or generated before that, and the screen is recorded only for beats the plan marks as screen recording.
 
-Hook in the first 2 s, fast pace, no dead air, ~20–60 s. Approved plan → script → voice (`speak`, trim silences) →
+Hook in the first 2 s, fast pace, no dead air, ~20–60 s. Approved plan → script → voice (the plan's choice: `speak`, `speak_clone` or the user's takes; trim silences) →
 word timings (`transcribe` the narration) → each beat's visual source as planned (existing footage, HyperFrames or
 Blender renders, stills (as parallax shots when the plan asks, §2a), planned screen captures) → `short.json` (anchor every cut, zoom, label and SFX to words,
 e.g. `word:so - 0.05`, `word:use#2`) → `short_build` → `short_preview` → privacy check → final.
