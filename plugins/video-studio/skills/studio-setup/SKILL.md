@@ -1,6 +1,6 @@
 ---
 name: studio-setup
-description: "Set up or update the video-studio profile and tools on this PC: checks Docker and the media toolbox, the NVIDIA GPU and the Hugging Face login for Stable Audio, asks the user a few questions and writes a channel profile <studio>/<channel>/studio.json plus the ~/.video-studio/config.json pointer, adds more channels (one folder each), installs the HyperFrames skills globally, and installs the DaVinci Resolve MCP with its free-edition bridge. Use when the user runs /studio-setup, when the studio profile is missing, or when they want to change their channel, voice, recordings or screen settings, or add another channel."
+description: "Set up or update the video-studio profile and tools on this PC: checks Docker and the media toolbox, the MangoAI editor, the NVIDIA GPU and the Hugging Face login for Stable Audio, asks the user a few questions and writes a channel profile <studio>/<channel>/studio.json plus the ~/.video-studio/config.json pointer, adds more channels (one folder each), installs the HyperFrames skills globally, and installs the DaVinci Resolve MCP with its free-edition bridge. Use when the user runs /studio-setup, when the studio profile is missing, or when they want to change their channel, voice, recordings or screen settings, or add another channel."
 argument-hint: "[check | channel | voice | recordings | ...]"
 ---
 
@@ -36,6 +36,7 @@ Run these and collect the results before asking anything:
 | ffmpeg on the host | `ffmpeg -version` | Needed for screen recording → `winget install Gyan.FFmpeg` |
 | uv (optional) | `uvx --version` | Only for the Blender MCP → `winget install astral-sh.uv` |
 | Hugging Face login | `hf auth whoami` (or `uvx --from huggingface_hub hf auth whoami`) | §1b |
+| MangoAI editor | `claude mcp get mangoai` connected, and `GET http://localhost:4780/api/health` once it runs | Not installed → §1c |
 
 ### 1a. Install the media toolbox
 
@@ -56,6 +57,18 @@ Stable Audio Open 1.0 is gated. The user must, themselves:
 2. Run `hf auth login` in their own terminal and paste a read token. The toolbox uses the token saved under
    `%USERPROFILE%\.cache\huggingface`.
 Transcription and TTS need no account. Skip this if they don't want generated sound effects.
+
+### 1c. Install the MangoAI editor
+
+MangoAI (github.com/JohanDuran/MangoAI) previews, edits and renders the videos; the toolbox only makes media
+(`video-toolkit` §1b). It runs on the host (Node ≥ 20 and ffmpeg on PATH), not in Docker. With the user's OK:
+
+1. Clone it, e.g. into `%USERPROFILE%\Documents\Projects\MangoAI`, then `npm install` there.
+2. `npm run claude-setup` prints what it would register; with the user's OK, `npm run claude-setup -- --yes`. It adds
+   the `mangoai` MCP server (user scope) and a UserPromptSubmit hook to `~/.claude/settings.json` (backed up first),
+   which tells Claude what the user saved or asked for in the editor.
+3. New Claude Code sessions pick both up. Any `mangoai` tool starts the editor if it isn't running (or `npm start`),
+   at http://localhost:4780.
 
 ## 2. Ask the questions
 
