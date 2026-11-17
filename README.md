@@ -10,11 +10,11 @@ not in the plugin.
 
 | Command | What it does |
 |---|---|
-| `/studio-setup` | Checks Docker, the media toolbox, your GPU and Hugging Face login; asks a few questions and writes your profile; installs the HyperFrames skills and the DaVinci Resolve MCP |
+| `/studio-setup` | Checks Docker, the media toolbox, the MangoAI editor, your GPU and Hugging Face login; asks a few questions and writes your profile; installs the HyperFrames skills and the DaVinci Resolve MCP |
 | `/plan [idea]` | **Start here for every new video.** Discusses the idea with you (goal, audience, format, what footage you already have), picks the right tool for each beat (screen recording only where a real screen is the point; otherwise existing footage, HyperFrames graphics, Blender, stills) with the reasons, and writes `plan.md`. Produces nothing until you approve |
-| `/short <topic>` | Vertical Short from the approved plan: script → voiceover → word timings → each beat's visuals as planned → `short.json` → build + preview → privacy check → render |
+| `/short <topic>` | Vertical Short from the approved plan: script → voiceover → word timings → each beat's visuals as planned → `short.json` → live preview and hand fixes in MangoAI → privacy check → export |
 | `/edit-recording` | Long-form edit: transcribe → cut proposals → (plan for additions) → apply in Resolve → HyperFrames overlays timed to words → SFX → render |
-| `/explainer <topic>` | Faceless explainer from the approved plan: script → voiceover → scenes built in HyperFrames → local render |
+| `/explainer <topic>` | Faceless explainer from the approved plan: script → voiceover → scenes built in HyperFrames → assembled and exported in MangoAI |
 
 `/short`, `/explainer` and `/edit-recording` check for an approved `plan.md` first; without one they start with `/plan`.
 
@@ -22,7 +22,11 @@ Background skills Claude reads on its own: `video-toolkit` (every capability and
 (free tools only, raw recordings are read-only, non-destructive edits, folder layout, your house rules).
 
 MCP servers registered by the plugin: `media-toolbox` (`http://localhost:8765/mcp`) and `blender`
-(`uvx mcp-for-blender`, optional). The DaVinci Resolve MCP is installed by `/studio-setup` with its own installer.
+(`uvx mcp-for-blender`, optional). The DaVinci Resolve MCP and the MangoAI editor's MCP server are installed by
+`/studio-setup` with their own installers.
+
+**Who does what:** the [MangoAI](https://github.com/JohanDuran/MangoAI) editor previews, edits and renders the videos
+(you and Claude edit the same timeline); the media toolbox runs the GPU models (voice, transcription, sounds, images).
 
 **Recording indicator** (`tools/rec-indicator`, Windows): when Claude screen-records, a floating red **REC** pill stays
 on top of everything, then turns green **DONE** with a chime when the recording stops, so you know when you can use
@@ -36,7 +40,9 @@ viewer, it moves to the taskbar instead, so you can see it, and stays outside th
   renders and Shorts still work, but transcription, voiceover and sound generation don't.
 - [Claude Code](https://claude.com/claude-code), Docker Desktop, Node.js 20+, ffmpeg.
 - The **media-toolbox** engine: https://github.com/JohanDuran/media-toolbox (Docker stack: WhisperX, Kokoro TTS,
-  cloned voices with Chatterbox Turbo (v0.2.0+), Stable Audio Open, depth maps + cutouts for parallax shots, ffmpeg, HyperFrames renderer, Shorts engine).
+  cloned voices with Chatterbox Turbo (v0.2.0+), Stable Audio Open, depth maps + cutouts for parallax shots, ffmpeg, HyperFrames renderer).
+- The **MangoAI** editor: https://github.com/JohanDuran/MangoAI (runs on the host with Node; live preview, editing,
+  export). `/studio-setup` walks you through installing it.
   `/studio-setup` walks you through installing it.
 - Optional: DaVinci Resolve **free 21.0.x** (don't update to 21.1+, which made scripting Studio-only), Blender + uv,
   a free Hugging Face account for Stable Audio.

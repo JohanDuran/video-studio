@@ -10,7 +10,7 @@ Idea: `$ARGUMENTS` (may be empty, vague, or just a feeling — that's fine).
 
 This is a **conversation, not a pipeline.** The output is an approved `plan.md`. Nothing gets recorded, voiced,
 generated or rendered in this skill. Don't start the screen recorder, don't call `speak`, `sfx_generate`,
-`render_hyperframes` or `short_build`, don't open Resolve projects.
+`render_hyperframes` or MangoAI's `export`, don't open MangoAI or Resolve projects.
 
 Before anything: read the profile (`video-toolkit` §0) — channel, language, house rules, recordings folder,
 whether there's a GPU (`toolbox.gpu`) — and follow `editing-rules`.

@@ -27,14 +27,19 @@ Follow these without re-asking. For what tools exist and how to use them, read `
     Super Scale, Magic Mask) without saying they're Studio-only.
   - If `resolve.edition` in the profile is `studio`, the Studio features are fine; the 21.0.x pin still stands
     only if the user relies on the in-app bridge.
-- **HyperFrames: local rendering only.** Use toolbox `render_hyperframes` or `npx hyperframes render`.
+- **HyperFrames: local rendering only.** MangoAI renders comps itself at export; otherwise toolbox
+  `render_hyperframes` or `npx hyperframes render`.
   - Never run `hyperframes cloud render`, `lambda`, `cloudrun`, or `hyperframes auth login`.
   - Never use HeyGen-credit features: HeyGen TTS/voices, avatars, `media-use resolve --type bgm|sfx`
     (needs the heygen CLI), or AI image/music/video generation that costs credits. Use the toolbox instead:
     `speak` / `speak_clone` for voice, `sfx_search`/`sfx_generate` for sound, `transcribe` for transcripts.
   - If a HyperFrames workflow step needs one of these, skip it or use the free alternative and say so.
-  - Don't push the HyperFrames desktop app or `hyperframes open`: the pipeline is Claude + CLI render + Resolve MCP.
-    The web Studio preview is fine for the user's own small tweaks.
+  - Don't push the HyperFrames desktop app or `hyperframes open`: the pipeline is Claude + the MangoAI editor (live
+    preview, edits, export) + the toolbox, with Resolve (via OTIO or the Resolve MCP) when the user wants it. The web
+    Studio preview is fine for the user's own small tweaks.
+- **One owner per job** (`video-toolkit` §1b): the media toolbox makes voices, transcripts, sounds and images;
+  MangoAI previews, edits and renders. Don't use the toolbox's deprecated `short_build` / `short_preview` for new
+  videos.
 - **Other tools:** prefer what's installed (ffmpeg, Node, Docker). Don't sign up for or connect paid services.
 - **Voice: the user chooses it** (in the plan), never Claude. The options are Kokoro (local, Apache 2.0) via `speak`
   with the profile's voice and speed; a cloned voice via `speak_clone` (Chatterbox Turbo, local, MIT) with a profile

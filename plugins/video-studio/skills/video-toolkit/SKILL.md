@@ -1,6 +1,6 @@
 ---
 name: video-toolkit
-description: Everything Claude can use to make and edit videos with the video-studio plugin — the media-toolbox MCP (transcription, TTS, SFX/music, ffmpeg, HyperFrames render, vertical Shorts from short.json, stills to motion with depth maps, cutouts and parallax camera moves, optional FLUX image generation), the DaVinci Resolve and Blender MCPs, screen recording with ffmpeg, browser capture, and the proven workflows and gotchas. Read before planning or producing any video, Short, voiceover, screen recording, overlay, render or Resolve assembly, and before saying a capability doesn't exist.
+description: Everything Claude can use to make and edit videos with the video-studio plugin — the MangoAI editor (live preview, hand and Claude edits, requests, the final render of short.json / cut.json projects), the media-toolbox MCP (transcription, TTS, SFX/music, ffmpeg, HyperFrames render, stills to motion with depth maps, cutouts and parallax camera moves, optional FLUX image generation), the DaVinci Resolve and Blender MCPs, screen recording with ffmpeg, browser capture, and the proven workflows and gotchas. Read before planning or producing any video, Short, voiceover, screen recording, overlay, render or Resolve assembly, and before saying a capability doesn't exist.
 ---
 
 # Video toolkit
@@ -46,14 +46,47 @@ Project files always go in `<channel folder>/<ProjectName>/` (same name as the R
 
 | What | Kind | Use it for |
 |---|---|---|
-| **media-toolbox** | MCP server (Docker, `http://localhost:8765/mcp`, from this plugin) | Transcription, TTS, SFX/music + sound library, ffmpeg/ffprobe, HyperFrames render, vertical Shorts, stills → moving parallax shots |
+| **MangoAI** | Editor (browser tab, `http://localhost:4780`) + MCP server `mangoai` (user level, `npm run claude-setup` in its repo) + a hook | **Editing and rendering**: opens `short.json` / `cut.json` projects, live preview with HyperFrames comps, hand edits, the user's requests, exports the final MP4 (§1b) |
+| **media-toolbox** | MCP server (Docker, `http://localhost:8765/mcp`, from this plugin) | **The GPU models**: transcription, TTS / cloned voices, SFX/music + sound library, images, stills → moving parallax shots; also ffmpeg/ffprobe and HyperFrames render |
 | **davinci-resolve** | MCP server (third-party, installed by `/studio-setup`) | Projects, media pool, timelines, placing clips, rendering in Resolve (free 21.0.x via the in-app bridge) |
 | **blender** | MCP server (optional, `uvx mcp-for-blender`, from this plugin) | 3D scenes/renders (`execute_blender_code`, `look`) |
 | **Claude in Chrome** | Browser extension (`mcp__claude-in-chrome__*`), the user's real Chrome | **The only browser for live websites**: research, demos you then screen-record. Never the built-in browser or Playwright/Puppeteer for external sites, since they get flagged as bots (`editing-rules` §6) |
 | **ffmpeg / ffprobe** on the host | CLI | Screen recording (`gdigrab` on Windows), quick edits, analysis. The toolbox has its own ffmpeg in Docker |
 | **HyperFrames** | skills (`hyperframes`, `hyperframes-cli`, `hyperframes-registry`, `media-use`, …) + toolbox `render_hyperframes` | Designed motion graphics/overlays (HTML → MP4, or MOV with alpha). Local render only |
 
-## 2. Media toolbox (the main engine)
+## 1b. Who does what: MangoAI edits, the toolbox makes media
+
+One owner per job, so nothing is built twice:
+
+| Job | Owner |
+|---|---|
+| Voice (Kokoro, cloned), word timings, SFX/music, images, depth/cutout/parallax | **toolbox** (GPU models, §2) |
+| Preview, edit (by hand or by Claude), requests, the final render, OTIO for Resolve | **MangoAI** |
+| One stand-alone HyperFrames render, ffmpeg one-offs | either (toolbox `render_hyperframes` / `ffmpeg`, both on HyperFrames 0.9.52) |
+
+The toolbox's `short_build` / `short_preview` are **deprecated**: MangoAI opens a folder with a `short.json`, plays
+it live and exports it with the same look and loudness. Don't use them for new videos.
+
+**MangoAI** (repo `~/Documents/Projects/MangoAI`; `npm start` there, or any `mangoai` tool starts it):
+
+- A project is a folder with `cut.json` (MangoAI's format, `docs/PROJECT_FORMAT.md` in its repo) or a `short.json`
+  (imported; the first Save writes `cut.json` next to it, `short.json` is never changed). Its state goes in
+  `.mangoai/`, exports in `renders/`.
+- **Tools:** `project_open` (opens the editor tab), `project_state` (tracks, clips with resolved times, `problems`,
+  revision), `changes_since`, `selection`, `frame` (live composite at t, needs the tab open), `edit` (move, trim,
+  split, ripple, cut ranges, link to words…), `apply_ops` (low-level), `requests_list` / `request_update`,
+  `comp_create` / `comp_versions` / `comp_stills` / `comp_edit_done` (HyperFrames comps), `transcript`, `export`
+  (cached: only changed parts re-render), `export_plan`, `export_otio`, `restore_revision`.
+- **Revisions:** every edit passes `base` = the revision you read; a stale base is refused with what changed. The
+  user's unsaved edits in the tab are kept on top of yours.
+- **The hook** tells you, on the user's next message, what they saved and asked for since you last looked. Read it
+  with `changes_since` / `requests_list`, then act. Before editing a comp: `comp_versions` snapshot.
+- **Toolbox tab** (in the editor): the user can search/generate sounds, voice a line and transcribe a clip there;
+  it calls the toolbox and puts the results on the timeline.
+- **Comps:** HyperFrames pages in `animations/<name>/`, sized to the frame; MangoAI renders them with transparency,
+  so put any background on the root element, not `body`.
+
+## 2. Media toolbox (the GPU models)
 
 - A Docker Compose stack: a `gateway` (dashboard + REST + MCP, job queue) and workers for WhisperX, Stable Audio,
   Kokoro TTS, `voice-clone` (Chatterbox Turbo, cloned voices), `vision` (depth maps + cutouts) on the GPU, and a CPU `render` worker (ffmpeg + HyperFrames + Chrome +
@@ -75,7 +108,8 @@ Project files always go in `<channel folder>/<ProjectName>/` (same name as the R
   user's OK: `git pull` in `toolbox.repo_dir`, set `COMPOSE_PROFILES=gpu,flux` in its `.env`, then
   `docker compose up -d`. The first start downloads ~11.5 GB of models.
 - **Dashboard** http://localhost:8765: Overview (workers, GPU), Jobs (logs, outputs, audio players),
-  Run a tool (forms), Sound library (audition, keep/reject), Shorts (shot thumbnails, rebuild, preview).
+  Run a tool (forms), Sound library (audition, keep/reject), Shorts (shot thumbnails; its build/preview buttons use the
+  deprecated builder, so preview and export in MangoAI instead).
 - Long jobs: tools wait up to `wait_seconds`; otherwise use `wait_for_job` / `job_status`.
 - The full `short.json` format, with an annotated example, is in the toolbox repo's `docs/short-spec.md`.
 
@@ -91,8 +125,8 @@ Project files always go in `<channel folder>/<ProjectName>/` (same name as the R
 | `ffmpeg(args)`, `ffprobe(path)` | Container ffmpeg; Windows paths are converted (not inside filter strings) |
 | `render_hyperframes(project_dir, format, fps, …)` | Local HyperFrames render (`mov` = alpha) |
 | `short_info(project_dir)` | Instant: resolved shots/times/outputs of a `short.json` |
-| `short_build(project_dir, parts, only)` | Shots (V1) + overlay (V2) + narration (A1) + bed (A2); returns a Resolve `timeline` placement |
-| `short_preview(project_dir)` | Composite MP4 with sound + contact sheet (one frame per shot) — essentially the finished video |
+| `short_build(project_dir, parts, only)` | **Deprecated** (MangoAI renders Shorts, §1b). Shots (V1) + overlay (V2) + narration (A1) + bed (A2) |
+| `short_preview(project_dir)` | **Deprecated** (MangoAI previews live, §1b). Composite MP4 + contact sheet |
 | `short_frames(src, times, region)` | Labelled frame grid from a recording, to plan crops/moments |
 | `image_depth(images, soften)` | Depth map per still (Depth Anything V2 Small) → `stills/<stem>_depth.png`. Pass a whole folder or list: one model load |
 | `image_cutout(images, plate, refine)` | Subject cutout (BiRefNet) → `<stem>_cut.png` + `_mask.png`; `plate=true` adds `<stem>_plate.png` (subject removed, filled) |
@@ -181,8 +215,8 @@ is recorded or generated before that, and the screen is recorded only for beats 
 Hook in the first 2 s, fast pace, no dead air, ~20–60 s. Approved plan → script → voice (the plan's choice: `speak`, `speak_clone` or the user's takes; trim silences) →
 word timings (`transcribe` the narration) → each beat's visual source as planned (existing footage, HyperFrames or
 Blender renders, stills (as parallax shots when the plan asks, §2a), planned screen captures) → `short.json` (anchor every cut, zoom, label and SFX to words,
-e.g. `word:so - 0.05`, `word:use#2`) → `short_build` → `short_preview` → privacy check → final.
-Anchoring to words means a new voice take re-times the whole edit by rebuilding.
+e.g. `word:so - 0.05`, `word:use#2`) → MangoAI `project_open` (live preview, `frame` checks) → privacy check →
+hand fixes / requests → MangoAI `export`. Anchoring to words means a new voice take re-times the whole edit.
 
 Voice clean-up per line before joining (~0.1 s gaps):
 `ffmpeg -i vo.wav -af "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.02,areverse,silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.06,areverse,apad=pad_dur=0.12" -ar 48000 -ac 1 trim_vo.wav`

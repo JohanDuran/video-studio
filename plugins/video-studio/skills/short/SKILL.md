@@ -1,6 +1,6 @@
 ---
 name: short
-description: "Build a vertical Short (9:16, ~20–60 s) from an approved plan.md with the media toolbox: script, a voiceover in the voice the user picked (Kokoro, a cloned voice or their own), word timings, footage only where the plan calls for it, a short.json edit, short_build and short_preview, a privacy check, then the final render or a Resolve assembly. Starts with the plan skill when there's no approved plan. Use when the user runs /short <topic> or asks for a Short, Reel or TikTok."
+description: "Build a vertical Short (9:16, ~20–60 s) from an approved plan.md: script, a voiceover in the voice the user picked (Kokoro, a cloned voice or their own) and word timings from the media toolbox, footage only where the plan calls for it, a short.json edit, then preview, hand fixes and the final export in the MangoAI editor, with a privacy check (or a Resolve finish via OTIO). Starts with the plan skill when there's no approved plan. Use when the user runs /short <topic> or asks for a Short, Reel or TikTok."
 argument-hint: "<topic>"
 ---
 
@@ -15,9 +15,12 @@ Topic: `$ARGUMENTS`.
   picks the tools per beat), and continue here only once the plan is approved.
 
 
-Before anything: read the profile (`video-toolkit` §0) and follow `editing-rules`. Check `toolbox_status`;
-if it fails, stop and help the user start Docker. The `short.json` format is in the toolbox repo's
-`docs/short-spec.md` (`toolbox.repo_dir` in the profile) — read it before writing the spec.
+Before anything: read the profile (`video-toolkit` §0) and follow `editing-rules`. Two tools, one job each
+(`video-toolkit` §1b): the **media toolbox** makes the voice, word timings, sounds and images (GPU models), and
+**MangoAI** previews, edits and renders the video. Check `toolbox_status`; if it fails, stop and help the user start
+Docker. Check MangoAI's tools are there (`mcp__mangoai__*`); if not, stop and point to `/studio-setup` (MangoAI
+section). The `short.json` format is in the toolbox repo's `docs/short-spec.md` (`toolbox.repo_dir` in the
+profile) — read it before writing the spec.
 
 Project folder: `<channel folder>/<ProjectName>/` (`video-toolkit` §0; agree a short PascalCase or snake_case name with the user).
 
@@ -39,7 +42,10 @@ Skip any part of a step that the video doesn't need.
    `transcription.vocab` plus any new names in the script → `transcripts/narration.words.tsv`.
 5. **Visual sources, as the plan says** — for each beat, only the source the plan chose:
    - existing recordings or camera/phone clips: find regions and moments with `short_frames` or contact sheets;
-   - HyperFrames graphics: build and `render_hyperframes` them into `edit/` (they become shot sources);
+   - HyperFrames graphics that are whole shots: build and `render_hyperframes` them into `edit/` (short.json uses
+     them as shot sources). Graphics over the edit can instead be added after step 7 as MangoAI comps
+     (`comp_create`): they play live and MangoAI renders them at export (put any background on the root element,
+     not `body`: comps render with transparency);
    - Blender renders or stills: produce them into `edit/` or `capture/`;
    - photos the plan marks as parallax shots: crop each to the photo itself, run `image_depth` on all of them in one
      call, then `parallax` per still (default depth mode, `size` 1080x1920, `fps` 30, `duration` = the beat plus
@@ -53,16 +59,25 @@ Skip any part of a step that the video doesn't need.
    back with zoom keys, graphics (Head/Big/Tag/shape cards), captions, audio (music bed + SFX timed by their measured
    peak). Search the sound library before generating anything; send new SFX variations to the user to audition and
    record verdicts with `sfx_mark`.
-7. **Build** — `short_info` (sanity check) → `short_build` → `short_preview`. Read the contact sheet and check frames;
-   fix single shots with `only`. Show the preview to the user.
-8. **Privacy check** — every shot's first AND last frame (zooms and parallax moves change what's visible) for anything in
-   `channel.never_show`: town/addresses, device name, email, other chats/tabs, other people's content. Prefer frozen
-   stills where the user scrolled; blur with `blur` rects.
-9. **Final** — either the preview render is the final (check loudness ≈ −14 LUFS, peak ≤ −1 dB with
-   `ebur128=peak=true`), or assemble in Resolve with the returned `timeline` (V1 shots, V2 overlay, A1 voice, A2 bed)
-   and render 1080×1920 (`video-toolkit` §5).
+7. **Open in MangoAI** — `project_open` on the project folder. It imports `short.json` (never changes it) and opens
+   the editor tab: live preview, no render. Read `project_state`: fix every entry in `problems` (an anchor that
+   doesn't resolve, a missing file) in `short.json`, which re-imports on the next open, until there are none. Check
+   frames with `frame` (the live composite, graphics included) at each section's start and on key words. Give the
+   user the editor link (`http://localhost:4780/?dir=<project folder>`) to watch it there.
+8. **Privacy check** — `frame` at every shot's first AND last frame (zooms and parallax moves change what's visible)
+   for anything in `channel.never_show`: town/addresses, device name, email, other chats/tabs, other people's content.
+   Prefer frozen stills where the user scrolled; blur with `blur` rects.
+9. **Hand fixes and requests** — the user can now trim, move, nudge and re-level by hand, or point at something
+   and leave a request (R in the editor). From here on, edit with MangoAI's tools (`edit`, `apply_ops`, `comp_*`,
+   with `base` = the current revision), not by rewriting `short.json`: the first Save wrote `cut.json`, which is now
+   the project. Before each turn's work, the MangoAI hook tells you what the user saved and asked; read it with
+   `changes_since` / `requests_list`.
+10. **Final** — `export` (only changed parts re-render; `renders/<project>-r<revision>.mp4`). Check loudness
+    ≈ −14 LUFS, peak ≤ −1 dB (`ebur128=peak=true`) and show the user. To finish in Resolve instead: `export_otio`,
+    then in Resolve File → Import → Timeline (`video-toolkit` §5).
 
-Changing the voice later: regenerate narration + word timings, rebuild — every cut is anchored to words, so the edit
-re-times itself.
+Changing the voice later: regenerate narration + word timings (same file names). MangoAI reloads the words and
+everything anchored to them re-times itself.
 
-Done = a 1080×1920 MP4 in `<project>/renders/` the user approved, plus `short.json` so it can be rebuilt.
+Done = a 1080×1920 MP4 in `<project>/renders/` the user approved, plus `cut.json` (and the original `short.json`) so
+it can be re-edited and re-exported.
