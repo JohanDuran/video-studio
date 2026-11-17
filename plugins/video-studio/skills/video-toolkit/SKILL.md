@@ -1,6 +1,6 @@
 ---
 name: video-toolkit
-description: Everything Claude can use to make and edit videos with the video-studio plugin — the MangoAI editor (live preview, hand and Claude edits, requests, the final render of short.json / cut.json projects), the media-toolbox MCP (transcription, TTS, SFX/music, ffmpeg, HyperFrames render, stills to motion with depth maps, cutouts and parallax camera moves, optional FLUX image generation), the DaVinci Resolve and Blender MCPs, screen recording with ffmpeg, browser capture, and the proven workflows and gotchas. Read before planning or producing any video, Short, voiceover, screen recording, overlay, render or Resolve assembly, and before saying a capability doesn't exist.
+description: Everything Claude can use to make and edit videos with the video-studio plugin — the MangoAI editor (live preview, hand and Claude edits, requests, the final render of short.json / cut.json projects), the media-toolbox MCP (transcription, TTS and cloned voices, SFX/music, ffmpeg, optional FLUX image generation), the DaVinci Resolve and Blender MCPs, screen recording with ffmpeg, browser capture, and the proven workflows and gotchas. Read before planning or producing any video, Short, voiceover, screen recording, overlay, render or Resolve assembly, and before saying a capability doesn't exist.
 ---
 
 # Video toolkit
@@ -47,12 +47,12 @@ Project files always go in `<channel folder>/<ProjectName>/` (same name as the R
 | What | Kind | Use it for |
 |---|---|---|
 | **MangoAI** | Editor (browser tab, `http://localhost:4780`) + MCP server `mangoai` (user level, `npm run claude-setup` in its repo) + a hook | **Editing and rendering**: opens `short.json` / `cut.json` projects, live preview with HyperFrames comps, hand edits, the user's requests, exports the final MP4 (§1b) |
-| **media-toolbox** | MCP server (Docker, `http://localhost:8765/mcp`, from this plugin) | **The GPU models**: transcription, TTS / cloned voices, SFX/music + sound library, images, stills → moving parallax shots; also ffmpeg/ffprobe and HyperFrames render |
+| **media-toolbox** | MCP server (Docker, `http://localhost:8765/mcp`, from this plugin) | **The GPU models**: transcription, TTS / cloned voices, SFX/music + sound library, FLUX images; also ffmpeg/ffprobe and the Shorts helpers. No HyperFrames since v0.4.0 |
 | **davinci-resolve** | MCP server (third-party, installed by `/studio-setup`) | Projects, media pool, timelines, placing clips, rendering in Resolve (free 21.0.x via the in-app bridge) |
 | **blender** | MCP server (optional, `uvx mcp-for-blender`, from this plugin) | 3D scenes/renders (`execute_blender_code`, `look`) |
 | **Claude in Chrome** | Browser extension (`mcp__claude-in-chrome__*`), the user's real Chrome | **The only browser for live websites**: research, demos you then screen-record. Never the built-in browser or Playwright/Puppeteer for external sites, since they get flagged as bots (`editing-rules` §6) |
 | **ffmpeg / ffprobe** on the host | CLI | Screen recording (`gdigrab` on Windows), quick edits, analysis. The toolbox has its own ffmpeg in Docker |
-| **HyperFrames** | skills (`hyperframes`, `hyperframes-cli`, `hyperframes-registry`, `media-use`, …) + toolbox `render_hyperframes` | Designed motion graphics/overlays (HTML → MP4, or MOV with alpha). Local render only |
+| **HyperFrames** | skills (`hyperframes`, `hyperframes-cli`, `hyperframes-registry`, `media-use`, …) + MangoAI `comp_render` | Designed motion graphics/overlays (HTML → MP4, or MOV with alpha). Local render only |
 
 ## 1b. Who does what: MangoAI edits, the toolbox makes media
 
@@ -60,9 +60,10 @@ One owner per job, so nothing is built twice:
 
 | Job | Owner |
 |---|---|
-| Voice (Kokoro, cloned), word timings, SFX/music, images, depth/cutout/parallax | **toolbox** (GPU models, §2) |
+| Voice (Kokoro, cloned), word timings, SFX/music, FLUX images | **toolbox** (GPU models, §2) |
 | Preview, edit (by hand or by Claude), requests, the final render, OTIO for Resolve | **MangoAI** |
-| One stand-alone HyperFrames render, ffmpeg one-offs | either (toolbox `render_hyperframes` / `ffmpeg`, both on HyperFrames 0.9.52) |
+| Any HyperFrames render (whole-shot graphics, overlays, single-composition videos) | **MangoAI** `comp_render` |
+| ffmpeg one-offs | host ffmpeg, or toolbox `ffmpeg` |
 
 The toolbox's `short_build` / `short_preview` are **deprecated**: MangoAI opens a folder with a `short.json`, plays
 it live and exports it with the same look and loudness. Don't use them for new videos.
@@ -75,7 +76,8 @@ it live and exports it with the same look and loudness. Don't use them for new v
 - **Tools:** `project_open` (opens the editor tab), `project_state` (tracks, clips with resolved times, `problems`,
   revision), `changes_since`, `selection`, `frame` (live composite at t, needs the tab open), `edit` (move, trim,
   split, ripple, cut ranges, link to words…), `apply_ops` (low-level), `requests_list` / `request_update`,
-  `comp_create` / `comp_versions` / `comp_stills` / `comp_edit_done` (HyperFrames comps), `transcript`, `export`
+  `comp_create` / `comp_versions` / `comp_stills` / `comp_edit_done` (HyperFrames comps), `comp_render` (any
+  HyperFrames folder → MP4/MOV/WebM file, the only HyperFrames renderer), `transcript`, `export`
   (cached: only changed parts re-render), `export_plan`, `export_otio`, `restore_revision`.
 - **Revisions:** every edit passes `base` = the revision you read; a stale base is refused with what changed. The
   user's unsaved edits in the tab are kept on top of yours.
@@ -89,8 +91,8 @@ it live and exports it with the same look and loudness. Don't use them for new v
 ## 2. Media toolbox (the GPU models)
 
 - A Docker Compose stack: a `gateway` (dashboard + REST + MCP, job queue) and workers for WhisperX, Stable Audio,
-  Kokoro TTS, `voice-clone` (Chatterbox Turbo, cloned voices), `vision` (depth maps + cutouts) on the GPU, and a CPU `render` worker (ffmpeg + HyperFrames + Chrome +
-  Shorts engine + parallax renders). With the optional `flux` profile, also `comfyui` (FLUX image generation) and
+  Kokoro TTS, `voice-clone` (Chatterbox Turbo, cloned voices) on the GPU, and a CPU `render` worker (ffmpeg + the
+  deprecated Shorts engine). With the optional `flux` profile, also `comfyui` (FLUX image generation) and
   the `image` worker that drives it.
   Where it lives on this PC: `toolbox.repo_dir` in the profile. Its settings are in that folder's `.env`.
 - **If its tools are missing / `toolbox_status` fails:** Docker Desktop isn't running → ask the user to start it,
@@ -99,9 +101,8 @@ it live and exports it with the same look and loudness. Don't use them for new v
   (the recordings folder from the profile).
 - **GPU:** one GPU job at a time; the gateway unloads other models first. First load ~15–30 s. Without an NVIDIA GPU,
   transcription/SFX/TTS/depth maps/cutouts are unavailable but ffmpeg, HyperFrames renders and Shorts still work.
-- **`image_depth` / `image_cutout` / `parallax` missing:** the toolbox predates them. In `toolbox.repo_dir`:
-  `git pull`, then `docker compose build vision render gateway` and `docker compose up -d` (ask first; it rebuilds
-  images and restarts the toolbox).
+- **`render_hyperframes`, `parallax`, `image_depth` or `image_cutout` missing:** removed in toolbox v0.4.0 on
+  purpose. HyperFrames renders are MangoAI `comp_render`; stills get a slow zoom instead of parallax.
 - **`speak_clone` missing:** the toolbox predates v0.2.0. With the user's OK: `git pull` in `toolbox.repo_dir`, then
   `docker compose pull && docker compose up -d` (or `docker compose build voice-clone gateway`).
 - **`image_generate` missing or failing with "the image worker isn't running":** FLUX is an opt-in profile. With the
@@ -123,50 +124,12 @@ it live and exports it with the same look and loudness. Don't use them for new v
 | `speak_clone(text, voice, ref_path, seed, out_path)` | A cloned voice (Chatterbox Turbo, English). `voice` = a profile in `<studio_dir>/voices/`. Only when the user chose it. See §2c |
 | `sfx_search` → `sfx_generate` → `sfx_mark` / `sfx_scan` | Shared sound library (`toolbox.sfx_library`, + `index.jsonl`). Search first; record verdicts; never delete |
 | `ffmpeg(args)`, `ffprobe(path)` | Container ffmpeg; Windows paths are converted (not inside filter strings) |
-| `render_hyperframes(project_dir, format, fps, …)` | Local HyperFrames render (`mov` = alpha) |
 | `short_info(project_dir)` | Instant: resolved shots/times/outputs of a `short.json` |
 | `short_build(project_dir, parts, only)` | **Deprecated** (MangoAI renders Shorts, §1b). Shots (V1) + overlay (V2) + narration (A1) + bed (A2) |
 | `short_preview(project_dir)` | **Deprecated** (MangoAI previews live, §1b). Composite MP4 + contact sheet |
 | `short_frames(src, times, region)` | Labelled frame grid from a recording, to plan crops/moments |
-| `image_depth(images, soften)` | Depth map per still (Depth Anything V2 Small) → `stills/<stem>_depth.png`. Pass a whole folder or list: one model load |
-| `image_cutout(images, plate, refine)` | Subject cutout (BiRefNet) → `<stem>_cut.png` + `_mask.png`; `plate=true` adds `<stem>_plate.png` (subject removed, filled) |
-| `parallax(image, mode, move, duration, strength, size, center, …)` | One still → a moving 2.5D camera shot (MP4, or MOV/WebM). Finds the depth/cutout files by name. See §2a |
 | `image_generate(prompt, size, quality, count, seed, …)` | FLUX.1 [dev] images (optional `flux` profile) → `<name>_s<seed>.png` + `.json`. See §2b |
 | `toolbox_status`, `list_jobs`, `job_status`, `wait_for_job`, `cancel_job` | Housekeeping |
-
-### 2a. Stills to motion (parallax)
-
-An optional tool: use it when it helps the video and the plan or the user asks for it, not on every still. It suits a
-photo that sits on screen for a while: a listing photo, a product shot, a generated image, a frozen frame. A slow
-camera move with real depth reads as footage instead of a slideshow. A plain still or a `short.json` zoom is often
-enough.
-
-1. **Crop first.** Run the vision tools on the photo itself, not a screenshot of a page. Cutouts and depth maps pick
-   up UI buttons, headers and badges otherwise. Crop with `ffmpeg` (`crop=w:h:x:y`) into the project's `capture/` or
-   `edit/` folder. Never write next to files in the recordings folder; the tools fall back to the toolbox outputs
-   for protected inputs.
-2. **`image_depth`** on all the stills at once (a folder works). It takes seconds, model load included. Outputs go to a
-   `stills/` folder next to the images. `soften` (default 0.006) rounds off depth edges so the move bends the
-   background instead of tearing a line along outlines. Use `0` only to inspect the raw map.
-3. **`parallax`** per still. It's a CPU render, about 26 s per 5 s clip at 1080×1920.
-   - **`mode: depth` (default)**: every pixel moves by its depth. Best for places: houses, streets, rooms,
-     landscapes. Keep `strength` near 1 (1.5 at most); higher values stretch near/far edges.
-   - **`mode: layers`**: the cutout slides over the filled-in plate (needs `image_cutout` with `plate=true`). Only
-     for **one clean, fully cut-out subject**, like a person or a product on a plain background. On a house photo the cutout
-     drops bushes and keeps stray leaves, so the house slides in front of its own garden, and the plate is smeary under
-     big subjects. Check `subject_fraction` and look at the `_cut.png` before choosing layers.
-   - **`move`**: `push-in` / `pull-out` (reveal or emphasis), `pan-left/right/up/down` (follow a line, a street), `drift`
-     (gentle push plus slide, the default choice for "make this still alive").
-   - **`size`**: `1080x1920` (Shorts, default), `1920x1080`, any `WxH`, or `source`. A landscape photo in a vertical frame
-     is cover-cropped: aim it with `center: [x, y]` (0–1), e.g. `[0.45, 0.5]` to keep the front door in frame.
-   - **`duration`**: the beat's length plus a little handle. **`fps`**: match the timeline (30 for Shorts).
-4. **Check** the first, middle and last frame (`ffmpeg … select=eq(n\,0)+eq(n\,N)…,tile`) for edge stretching and
-   privacy. The crop at the end of a push-in is not the crop at the start.
-5. **Use the clip** as a source: in `short.json`, as a full-frame layer (`card_w` 1080, `cy` 960) with `ss` 0. In
-   Resolve, import it like any shot. In HyperFrames, use it as a `<video muted>`.
-
-Small source images upscale soft: a 600 px wide photo is blurry at 1080×1920. Use the largest original you have
-(the listing's full-size photo, not a thumbnail).
 
 ### 2b. Generated images (FLUX)
 
@@ -181,10 +144,9 @@ it. Real things (a listing, a product, a person, an app) are shown from their re
   (256–2048).
 - **Prompts**: descriptive sentences (subject, setting, light, style), not tag lists. Put text that should appear in
   the image in quotes; FLUX renders short words well and long text badly, so add real text as HyperFrames type
-  instead. No negative prompts, no transparent backgrounds (use `image_cutout` afterwards if you need a cutout).
+  instead. No negative prompts, no transparent backgrounds.
 - **Outputs**: pass `out_dir` as the project's `edit/` or `images/` folder (default: the toolbox outputs). Each PNG
   has a `.json` with prompt and seed, so any image can be re-made at another size.
-- **Combine**: a generated still can go through §2a (`image_depth` + `parallax`) to get a camera move.
 - `turbo` (default on, 8 steps) is ~3× faster than plain FLUX (`turbo: false`, 20 steps) with similar quality; turn
   it off only to compare.
 
@@ -214,7 +176,7 @@ is recorded or generated before that, and the screen is recorded only for beats 
 
 Hook in the first 2 s, fast pace, no dead air, ~20–60 s. Approved plan → script → voice (the plan's choice: `speak`, `speak_clone` or the user's takes; trim silences) →
 word timings (`transcribe` the narration) → each beat's visual source as planned (existing footage, HyperFrames or
-Blender renders, stills (as parallax shots when the plan asks, §2a), planned screen captures) → `short.json` (anchor every cut, zoom, label and SFX to words,
+Blender renders, stills (with a slow zoom), planned screen captures) → `short.json` (anchor every cut, zoom, label and SFX to words,
 e.g. `word:so - 0.05`, `word:use#2`) → MangoAI `project_open` (live preview, `frame` checks) → privacy check →
 hand fixes / requests → MangoAI `export`. Anchoring to words means a new voice take re-times the whole edit.
 

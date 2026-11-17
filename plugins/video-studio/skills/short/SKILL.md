@@ -42,15 +42,14 @@ Skip any part of a step that the video doesn't need.
    `transcription.vocab` plus any new names in the script → `transcripts/narration.words.tsv`.
 5. **Visual sources, as the plan says** — for each beat, only the source the plan chose:
    - existing recordings or camera/phone clips: find regions and moments with `short_frames` or contact sheets;
-   - HyperFrames graphics that are whole shots: build and `render_hyperframes` them into `edit/` (short.json uses
-     them as shot sources). Graphics over the edit can instead be added after step 7 as MangoAI comps
+   - HyperFrames graphics that are whole shots: build them in `animations/<name>/`, then MangoAI `comp_render`
+     (`folder`, `output: <project>/edit/<name>.mp4`, or `format: mov` for a transparent overlay) into `edit/`
+     (short.json uses them as shot sources). Graphics over the edit can instead be added after step 7 as MangoAI comps
      (`comp_create`): they play live and MangoAI renders them at export (put any background on the root element,
      not `body`: comps render with transparency);
    - Blender renders or stills: produce them into `edit/` or `capture/`;
-   - photos the plan marks as parallax shots: crop each to the photo itself, run `image_depth` on all of them in one
-     call, then `parallax` per still (default depth mode, `size` 1080x1920, `fps` 30, `duration` = the beat plus
-     ~0.5 s, `center` aimed at the subject) into `edit/`. Look at first/middle/last frames before using a clip, then
-     use it as a full-frame shot source (`video-toolkit` §2a);
+   - photos: a still in short.json with zoom keys (a slow push), or a HyperFrames photo card. No parallax tool any
+     more;
    - images the plan marks as generated: `image_generate` with `size: 9:16` into `edit/`, drafts first, then the
      chosen seed as `final` (`video-toolkit` §2b);
    - screen capture **only for beats the plan marks as screen recording**: record into `capture/`
@@ -64,7 +63,7 @@ Skip any part of a step that the video doesn't need.
    doesn't resolve, a missing file) in `short.json`, which re-imports on the next open, until there are none. Check
    frames with `frame` (the live composite, graphics included) at each section's start and on key words. Give the
    user the editor link (`http://localhost:4780/?dir=<project folder>`) to watch it there.
-8. **Privacy check** — `frame` at every shot's first AND last frame (zooms and parallax moves change what's visible)
+8. **Privacy check** — `frame` at every shot's first AND last frame (zooms change what's visible)
    for anything in `channel.never_show`: town/addresses, device name, email, other chats/tabs, other people's content.
    Prefer frozen stills where the user scrolled; blur with `blur` rects.
 9. **Hand fixes and requests** — the user can now trim, move, nudge and re-level by hand, or point at something
@@ -72,7 +71,10 @@ Skip any part of a step that the video doesn't need.
    with `base` = the current revision), not by rewriting `short.json`: the first Save wrote `cut.json`, which is now
    the project. Before each turn's work, the MangoAI hook tells you what the user saved and asked; read it with
    `changes_since` / `requests_list`.
-10. **Final** — `export` (only changed parts re-render; `renders/<project>-r<revision>.mp4`). Check loudness
+10. **Final** — `export` (only changed parts re-render; `renders/<project>-r<revision>.mp4`). **Fallback, unattended
+    runs included:** if MangoAI can't open or export the project (a tool error twice in a row), build with the
+    toolbox's deprecated `short_build` → `short_preview` instead, copy `edit/preview.mp4` to `renders/`, and log
+    what failed (it still works; never skip a scheduled post because of MangoAI). Check loudness
     ≈ −14 LUFS, peak ≤ −1 dB (`ebur128=peak=true`) and show the user. To finish in Resolve instead: `export_otio`,
     then in Resolve File → Import → Timeline (`video-toolkit` §5).
 
