@@ -27,8 +27,8 @@ Follow these without re-asking. For what tools exist and how to use them, read `
     Super Scale, Magic Mask) without saying they're Studio-only.
   - If `resolve.edition` in the profile is `studio`, the Studio features are fine; the 21.0.x pin still stands
     only if the user relies on the in-app bridge.
-- **HyperFrames: local rendering only.** MangoAI renders comps itself at export; otherwise toolbox
-  `render_hyperframes` or `npx hyperframes render`.
+- **HyperFrames: local rendering only.** MangoAI renders: comps on its timeline at `export`, any other HyperFrames
+  folder with `comp_render`. (The toolbox has no HyperFrames since v0.4.0.) `npx hyperframes render` is the fallback.
   - Never run `hyperframes cloud render`, `lambda`, `cloudrun`, or `hyperframes auth login`.
   - Never use HeyGen-credit features: HeyGen TTS/voices, avatars, `media-use resolve --type bgm|sfx`
     (needs the heygen CLI), or AI image/music/video generation that costs credits. Use the toolbox instead:
@@ -50,10 +50,8 @@ Follow these without re-asking. For what tools exist and how to use them, read `
 - **Transcription:** WhisperX via toolbox `transcribe`, not Resolve's or HeyGen's. No speaker diarization unless asked.
 - **Generated SFX/music:** Stable Audio Open 1.0 via toolbox `sfx_generate` (its Hugging Face license is accepted
   during `/studio-setup`).
-- **Depth maps and cutouts:** toolbox `image_depth` (Depth Anything V2 **Small**, Apache 2.0) and `image_cutout`
-  (BiRefNet, MIT). Never swap in Depth Anything V2 Base or Large, or RMBG-2.0: their weights are non-commercial.
-- **Parallax is a camera move, not new content.** Don't use it to fake what a place looks like: on real-estate or
-  product videos, the photo must be the real one, unaltered except for the crop and the move.
+- **Real photos stay real:** on real-estate or product videos the photo must be the real one, unaltered except for
+  crop, zoom and color. (Depth maps, cutouts and parallax were removed from the toolbox in v0.4.0.)
 - **Generated images:** local FLUX.1 [dev] via toolbox `image_generate` is free and allowed. Its weights are
   non-commercial, but under its license the images it makes may be used in monetized videos. Never generate or
   edit images that stand in for real things (a listing, a property, a product, a person, a screenshot of an app):

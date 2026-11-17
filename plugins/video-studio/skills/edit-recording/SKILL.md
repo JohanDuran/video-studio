@@ -43,7 +43,7 @@ needs tightening ends at step 5 plus the render.
    items back and check for gaps/overlaps. Re-run step 3's `timeline_transcript` on the new timeline.
 6. **Overlays** — propose cards (titles, callouts, lower thirds, subscribe) anchored to spoken words. Measure face-safe
    zones from the camera clips first. Build a HyperFrames project in `animations/` (use the `hyperframes` skills;
-   local render only), render `mov` with alpha at the timeline fps via `render_hyperframes`, import, and place each on
+   local render only), render `mov` with alpha at the timeline fps with MangoAI `comp_render` (`format: mov`), import, and place each on
    an empty video track at the word's record frame. Overlapping cards go on separate tracks. Read back and compare.
 7. **Sound** — SFX for overlays: `sfx_search` first, then `sfx_generate`; user auditions; `sfx_mark` the verdicts.
    Pre-mix each overlay's cues into one WAV with ffmpeg (the API ignores clip volume) and place it on an empty audio

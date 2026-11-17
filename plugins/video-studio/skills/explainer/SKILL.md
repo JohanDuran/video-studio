@@ -23,8 +23,8 @@ explainer workflow from the `hyperframes` skill (installed by `/studio-setup`) b
 | HeyGen TTS / voices | the voice the plan names, which the user chose: toolbox `speak` (Kokoro), `speak_clone` (a cloned voice profile), or the user's own recording |
 | HeyGen / hosted transcription | toolbox `transcribe` (word timings) |
 | `media-use resolve --type bgm\|sfx`, generated music | toolbox `sfx_search` → `sfx_generate` |
-| AI image/video generation, avatars | Usually typography, shapes, diagrams, icons, data-viz. When a scene needs an image that doesn't exist, toolbox `image_generate` (local FLUX, optional, `video-toolkit` §2b). A real photo the plan names can become a moving scene with `image_depth` + `parallax` (§2a). No avatars or generated video |
-| `hyperframes cloud render`, lambda, cloudrun, `auth login` | MangoAI `export` (local; one comp per scene), or toolbox `render_hyperframes` (local) for a single composition |
+| AI image/video generation, avatars | Usually typography, shapes, diagrams, icons, data-viz. When a scene needs an image that doesn't exist, toolbox `image_generate` (local FLUX, optional, `video-toolkit` §2b). A real photo the plan names goes in a scene as a photo card with a slow zoom. No avatars or generated video |
+| `hyperframes cloud render`, lambda, cloudrun, `auth login` | MangoAI `export` (local; one comp per scene), or MangoAI `comp_render` (local) for a single composition |
 
 If HyperFrames isn't installed, or MangoAI's tools (`mcp__mangoai__*`) are missing, stop and offer `/studio-setup`.
 
@@ -56,7 +56,7 @@ Skip any part of a step that the video doesn't need.
    user the editor link to watch it live (`http://localhost:4780/?dir=<project folder>`). Scene tweaks: `comp_stills`
    on one scene, the user's requests via `requests_list`.
 7. **Render** — MangoAI `export` → `<project>/renders/<project>-r<revision>.mp4` (only changed scenes re-render). Check
-   loudness ≈ −14 LUFS, peak ≤ −1 dB. (One single HyperFrames composition instead of scenes: `render_hyperframes`,
+   loudness ≈ −14 LUFS, peak ≤ −1 dB. (One single HyperFrames composition instead of scenes: MangoAI `comp_render`,
    format `mp4`, fps 30 or 60.)
 8. Optional: finish in Resolve: `export_otio`, then File → Import → Timeline (`video-toolkit` §5).
 

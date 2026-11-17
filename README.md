@@ -40,7 +40,7 @@ viewer, it moves to the taskbar instead, so you can see it, and stays outside th
   renders and Shorts still work, but transcription, voiceover and sound generation don't.
 - [Claude Code](https://claude.com/claude-code), Docker Desktop, Node.js 20+, ffmpeg.
 - The **media-toolbox** engine: https://github.com/JohanDuran/media-toolbox (Docker stack: WhisperX, Kokoro TTS,
-  cloned voices with Chatterbox Turbo (v0.2.0+), Stable Audio Open, depth maps + cutouts for parallax shots, ffmpeg, HyperFrames renderer).
+  cloned voices with Chatterbox Turbo (v0.2.0+), Stable Audio Open, FLUX images, ffmpeg).
 - The **MangoAI** editor: https://github.com/JohanDuran/MangoAI (runs on the host with Node; live preview, editing,
   export). `/studio-setup` walks you through installing it.
   `/studio-setup` walks you through installing it.
