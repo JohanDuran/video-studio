@@ -5,16 +5,24 @@
   },
   "metadata": {
     "description": "Free, local video production with Claude: Shorts, recording edits and faceless explainers.",
-    "version": "0.8.0"
+    "version": "0.9.0"
   },
   "plugins": [
     {
       "name": "video-studio",
       "source": "./plugins/video-studio",
-      "description": "Make and edit videos with Claude using free local tools: the media-toolbox engine (transcription, TTS, SFX, ffmpeg, HyperFrames renders, vertical Shorts), DaVinci Resolve (free) and Blender.",
-      "version": "0.8.0",
+      "description": "Make and edit videos with Claude using free local tools. One of three pieces released together: this plugin (skills, setup, registrations), the media-toolbox engine (Docker: transcription, TTS and cloned voices, SFX, FLUX images, ffmpeg) and the MangoAI editor (timeline, HyperFrames graphics, render), plus optional DaVinci Resolve (free) and Blender.",
+      "version": "0.9.0",
       "category": "productivity",
-      "keywords": ["video", "youtube", "shorts", "davinci-resolve", "hyperframes", "ffmpeg", "whisperx"]
+      "keywords": [
+        "video",
+        "youtube",
+        "shorts",
+        "davinci-resolve",
+        "hyperframes",
+        "ffmpeg",
+        "whisperx"
+      ]
     }
   ]
 }

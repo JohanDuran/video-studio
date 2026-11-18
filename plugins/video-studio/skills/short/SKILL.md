@@ -18,7 +18,7 @@ Topic: `$ARGUMENTS`.
 Before anything: read the profile (`video-toolkit` §0) and follow `editing-rules`. Two tools, one job each
 (`video-toolkit` §1b): the **media toolbox** makes the voice, word timings, sounds and images (GPU models), and
 **MangoAI** previews, edits and renders the video. Check `toolbox_status`; if it fails, stop and help the user start
-Docker. Check MangoAI's tools are there (`mcp__mangoai__*`); if not, stop and point to `/studio-setup` (MangoAI
+Docker. Check MangoAI's tools are there (`mcp__plugin_video-studio_mangoai__*`, or `mcp__mangoai__*` from an older user-level install); if not, stop and point to `/studio-setup` (MangoAI
 section). The `short.json` format is in the toolbox repo's `docs/short-spec.md` (`toolbox.repo_dir` in the
 profile) — read it before writing the spec.
 

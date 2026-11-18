@@ -1,7 +1,7 @@
 {
   "name": "video-studio",
-  "version": "0.8.0",
-  "description": "Make and edit videos with Claude using free local tools: the media-toolbox engine (transcription, TTS, SFX, ffmpeg, HyperFrames renders, vertical Shorts), DaVinci Resolve (free) and Blender. Start with /studio-setup.",
+  "version": "0.9.0",
+  "description": "Make and edit videos with Claude using free local tools. One of three pieces released together: this plugin (skills, setup, registrations), the media-toolbox engine (Docker: transcription, TTS and cloned voices, SFX, FLUX images, ffmpeg) and the MangoAI editor (timeline, HyperFrames graphics, render), plus optional DaVinci Resolve (free) and Blender. Start with /studio-setup: Claude installs and checks everything.",
   "author": {
     "name": "Johan Duran",
     "url": "https://github.com/JohanDuran"
@@ -17,6 +17,7 @@
     "hyperframes",
     "ffmpeg",
     "whisperx",
-    "kokoro"
+    "kokoro",
+    "mangoai"
   ]
 }

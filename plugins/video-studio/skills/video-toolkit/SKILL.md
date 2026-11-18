@@ -34,7 +34,7 @@ Find the profile in this order and use the first that exists:
 4. None → tell the user and offer `/studio-setup`. Don't guess personal settings.
 
 The folder holding the chosen `studio.json` is the **channel folder**. Start by saying which channel you're using
-("Using channel JDKoder, profile at …") so a wrong pick is caught early. If the pointer lists several `channels` and
+("Using channel My Channel, profile at …") so a wrong pick is caught early. If the pointer lists several `channels` and
 the working folder is outside all of them, ask which channel the video is for.
 
 The profile has the channel, recordings layout, voice, transcription vocab, screen geometry, toolbox settings and
@@ -46,7 +46,7 @@ Project files always go in `<channel folder>/<ProjectName>/` (same name as the R
 
 | What | Kind | Use it for |
 |---|---|---|
-| **MangoAI** | Editor (browser tab, `http://localhost:4780`) + MCP server `mangoai` (user level, `npm run claude-setup` in its repo) + a hook | **Editing and rendering**: opens `short.json` / `cut.json` projects, live preview with HyperFrames comps, hand edits, the user's requests, exports the final MP4 (§1b) |
+| **MangoAI** | Editor (browser tab, `http://localhost:4780`) + MCP server `mangoai` and a hook, both registered by this plugin (the pinned `mangoai` npm package, see `versions.json`) | **Editing and rendering**: opens `short.json` / `cut.json` projects, live preview with HyperFrames comps, hand edits, the user's requests, exports the final MP4 (§1b) |
 | **media-toolbox** | MCP server (Docker, `http://localhost:8765/mcp`, from this plugin) | **The GPU models**: transcription, TTS / cloned voices, SFX/music + sound library, FLUX images; also ffmpeg/ffprobe and the Shorts helpers. No HyperFrames since v0.4.0 |
 | **davinci-resolve** | MCP server (third-party, installed by `/studio-setup`) | Projects, media pool, timelines, placing clips, rendering in Resolve (free 21.0.x via the in-app bridge) |
 | **blender** | MCP server (optional, `uvx mcp-for-blender`, from this plugin) | 3D scenes/renders (`execute_blender_code`, `look`) |
@@ -68,10 +68,11 @@ One owner per job, so nothing is built twice:
 The toolbox's `short_build` / `short_preview` are **deprecated**: MangoAI opens a folder with a `short.json`, plays
 it live and exports it with the same look and loudness. Don't use them for new videos.
 
-**MangoAI** (repo `~/Documents/Projects/MangoAI`; `npm start` there, or any `mangoai` tool starts it):
+**MangoAI** (any `mangoai` tool starts its server; repo github.com/JohanDuran/MangoAI; a developer's clone runs instead when `MANGOAI_REPO` is set):
 
 - A project is a folder with `cut.json` (MangoAI's format, `docs/PROJECT_FORMAT.md` in its repo) or a `short.json`
-  (imported; the first Save writes `cut.json` next to it, `short.json` is never changed). Its state goes in
+  (imported; the first Save writes `cut.json` next to it, `short.json` is never changed; MangoAI keeps reading and
+  writing the toolbox's short.json format, a contract between the repos: `ECOSYSTEM.md`). Its state goes in
   `.mangoai/`, exports in `renders/`.
 - **Tools:** `project_open` (opens the editor tab), `project_state` (tracks, clips with resolved times, `problems`,
   revision), `changes_since`, `selection`, `frame` (live composite at t, needs the tab open), `edit` (move, trim,
@@ -94,7 +95,9 @@ it live and exports it with the same look and loudness. Don't use them for new v
   Kokoro TTS, `voice-clone` (Chatterbox Turbo, cloned voices) on the GPU, and a CPU `render` worker (ffmpeg + the
   deprecated Shorts engine). With the optional `flux` profile, also `comfyui` (FLUX image generation) and
   the `image` worker that drives it.
-  Where it lives on this PC: `toolbox.repo_dir` in the profile. Its settings are in that folder's `.env`.
+  Where it lives on this PC: `toolbox.repo_dir` in the profile (`%USERPROFILE%\.video-studio\media-toolbox` for the
+  no-clone install). Its settings are in that folder's `.env`. The release it should run is `media_toolbox.version`
+  in `${CLAUDE_PLUGIN_ROOT}/versions.json`; `toolbox_status` reports the running `version`.
 - **If its tools are missing / `toolbox_status` fails:** Docker Desktop isn't running → ask the user to start it,
   or run `docker compose up -d` in `toolbox.repo_dir`.
 - **Paths:** pass normal Windows paths under the user's home folder. It never writes into its protected folders
@@ -103,11 +106,10 @@ it live and exports it with the same look and loudness. Don't use them for new v
   transcription/SFX/TTS/depth maps/cutouts are unavailable but ffmpeg, HyperFrames renders and Shorts still work.
 - **`render_hyperframes`, `parallax`, `image_depth` or `image_cutout` missing:** removed in toolbox v0.4.0 on
   purpose. HyperFrames renders are MangoAI `comp_render`; stills get a slow zoom instead of parallax.
-- **`speak_clone` missing:** the toolbox predates v0.2.0. With the user's OK: `git pull` in `toolbox.repo_dir`, then
-  `docker compose pull && docker compose up -d` (or `docker compose build voice-clone gateway`).
+- **A tool missing, or `toolbox_status` older than `media_toolbox.min`:** the toolbox is out of date. With the
+  user's OK, run `/studio-setup update` (it re-runs the pinned installer, keeps `.env`, pulls the new images).
 - **`image_generate` missing or failing with "the image worker isn't running":** FLUX is an opt-in profile. With the
-  user's OK: `git pull` in `toolbox.repo_dir`, set `COMPOSE_PROFILES=gpu,flux` in its `.env`, then
-  `docker compose up -d`. The first start downloads ~11.5 GB of models.
+  user's OK: set `COMPOSE_PROFILES=gpu,flux` in the `.env` in `toolbox.repo_dir`, then `docker compose up -d` there. The first start downloads ~11.5 GB of models.
 - **Dashboard** http://localhost:8765: Overview (workers, GPU), Jobs (logs, outputs, audio players),
   Run a tool (forms), Sound library (audition, keep/reject), Shorts (shot thumbnails; its build/preview buttons use the
   deprecated builder, so preview and export in MangoAI instead).

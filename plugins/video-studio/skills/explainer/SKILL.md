@@ -26,7 +26,7 @@ explainer workflow from the `hyperframes` skill (installed by `/studio-setup`) b
 | AI image/video generation, avatars | Usually typography, shapes, diagrams, icons, data-viz. When a scene needs an image that doesn't exist, toolbox `image_generate` (local FLUX, optional, `video-toolkit` §2b). A real photo the plan names goes in a scene as a photo card with a slow zoom. No avatars or generated video |
 | `hyperframes cloud render`, lambda, cloudrun, `auth login` | MangoAI `export` (local; one comp per scene), or MangoAI `comp_render` (local) for a single composition |
 
-If HyperFrames isn't installed, or MangoAI's tools (`mcp__mangoai__*`) are missing, stop and offer `/studio-setup`.
+If HyperFrames isn't installed, or MangoAI's tools (`mcp__plugin_video-studio_mangoai__*`, or `mcp__mangoai__*` from an older user-level install) are missing, stop and offer `/studio-setup`.
 
 Project folder: `<channel folder>/<ProjectName>/` (`video-toolkit` §0), HyperFrames project in `<project>/animations/`.
 
