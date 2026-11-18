@@ -56,6 +56,7 @@
   "toolbox": {
     "url": "http://localhost:8765",
     "repo_dir": "",
+    "version": "",
     "gpu": "",
     "gpu_vram_gb": 0,
     "sfx_library": ""

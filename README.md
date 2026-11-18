@@ -6,11 +6,33 @@ edits in DaVinci Resolve, and faceless explainers. Claude does the editing work;
 It works from any folder. Your personal settings (channel, voice, recordings layout, screen) live in one profile file,
 not in the plugin.
 
+## Get started (4 steps)
+
+1. Have [Claude Code](https://claude.com/claude-code) and, on Windows 10/11,
+   [Docker Desktop](https://www.docker.com/products/docker-desktop/) running.
+2. `claude plugin marketplace add JohanDuran/video-studio`
+3. `claude plugin install video-studio@video-studio`
+4. Start a new Claude Code session and run **`/studio-setup`**. Claude checks your PC, installs the media toolbox and
+   the MangoAI editor at the versions this plugin is tested with, asks a few questions and writes your profile. You
+   approve the installs once and do only what needs you (Docker Desktop, an optional Hugging Face login).
+
+## One product, three repos
+
+| Repo | What it does |
+|---|---|
+| **video-studio** (this repo) | The plugin: skills, `/studio-setup`, and it registers and pins the other two |
+| [media-toolbox](https://github.com/JohanDuran/media-toolbox) | Makes media in Docker: transcription, voices (Kokoro, cloned), sound effects, FLUX images, ffmpeg |
+| [MangoAI](https://github.com/JohanDuran/MangoAI) | The editor: timeline you and Claude share, HyperFrames graphics, render and export |
+
+They are released together: [`plugins/video-studio/versions.json`](plugins/video-studio/versions.json) pins the
+toolbox and MangoAI releases, and [ECOSYSTEM.md](ECOSYSTEM.md) has the compatibility table and the contracts between
+them. **A change in one repo can break the others**: read ECOSYSTEM.md before changing tools, APIs or setup.
+
 ## What you get
 
 | Command | What it does |
 |---|---|
-| `/studio-setup` | Checks Docker, the media toolbox, the MangoAI editor, your GPU and Hugging Face login; asks a few questions and writes your profile; installs the HyperFrames skills and the DaVinci Resolve MCP |
+| `/studio-setup` | Claude sets up everything: checks Docker, your GPU and Hugging Face login, installs the media toolbox (no clone) and warms MangoAI at the pinned versions, asks a few questions and writes your profile; installs the HyperFrames skills and the DaVinci Resolve MCP. `/studio-setup update` after a plugin update brings the other pieces to the new versions |
 | `/plan [idea]` | **Start here for every new video.** Discusses the idea with you (goal, audience, format, what footage you already have), picks the right tool for each beat (screen recording only where a real screen is the point; otherwise existing footage, HyperFrames graphics, Blender, stills) with the reasons, and writes `plan.md`. Produces nothing until you approve |
 | `/short <topic>` | Vertical Short from the approved plan: script → voiceover → word timings → each beat's visuals as planned → `short.json` → live preview and hand fixes in MangoAI → privacy check → export |
 | `/edit-recording` | Long-form edit: transcribe → cut proposals → (plan for additions) → apply in Resolve → HyperFrames overlays timed to words → SFX → render |
@@ -21,9 +43,10 @@ not in the plugin.
 Background skills Claude reads on its own: `video-toolkit` (every capability and gotcha) and `editing-rules`
 (free tools only, raw recordings are read-only, non-destructive edits, folder layout, your house rules).
 
-MCP servers registered by the plugin: `media-toolbox` (`http://localhost:8765/mcp`) and `blender`
-(`uvx mcp-for-blender`, optional). The DaVinci Resolve MCP and the MangoAI editor's MCP server are installed by
-`/studio-setup` with their own installers.
+MCP servers registered by the plugin: `media-toolbox` (`http://localhost:8765/mcp`), `mangoai` (the pinned `mangoai`
+package through `npx`, via `tools/mangoai-launch.mjs`) and `blender` (`uvx mcp-for-blender`, optional), plus MangoAI's
+hook that tells Claude what you saved in the editor. The DaVinci Resolve MCP is installed by `/studio-setup` with its
+own installer.
 
 **Who does what:** the [MangoAI](https://github.com/JohanDuran/MangoAI) editor previews, edits and renders the videos
 (you and Claude edit the same timeline); the media toolbox runs the GPU models (voice, transcription, sounds, images).
@@ -38,12 +61,9 @@ viewer, it moves to the taskbar instead, so you can see it, and stays outside th
 
 - **Windows 10/11 with an NVIDIA GPU** is the tested setup (8 GB VRAM is enough). Without a GPU, ffmpeg, HyperFrames
   renders and Shorts still work, but transcription, voiceover and sound generation don't.
-- [Claude Code](https://claude.com/claude-code), Docker Desktop, Node.js 20+, ffmpeg.
-- The **media-toolbox** engine: https://github.com/JohanDuran/media-toolbox (Docker stack: WhisperX, Kokoro TTS,
-  cloned voices with Chatterbox Turbo (v0.2.0+), Stable Audio Open, FLUX images, ffmpeg).
-- The **MangoAI** editor: https://github.com/JohanDuran/MangoAI (runs on the host with Node; live preview, editing,
-  export). `/studio-setup` walks you through installing it.
-  `/studio-setup` walks you through installing it.
+- [Claude Code](https://claude.com/claude-code) and Docker Desktop. `/studio-setup` installs the rest with your OK:
+  Node.js 22+, ffmpeg, the **media-toolbox** (Docker stack: WhisperX, Kokoro TTS, Chatterbox cloned voices, Stable
+  Audio Open, FLUX images, ffmpeg) and the **MangoAI** editor (runs on the host with Node).
 - Optional: DaVinci Resolve **free 21.0.x** (don't update to 21.1+, which made scripting Studio-only), Blender + uv,
   a free Hugging Face account for Stable Audio.
 
@@ -65,7 +85,11 @@ Then start a **new** Claude Code session in any folder (plugins load when a sess
 > running the command, so use the terminal commands above. In the Claude Code CLI, the same steps also work as
 > `/plugin marketplace add JohanDuran/video-studio` and `/plugin install video-studio@video-studio`.
 
-Update later with `claude plugin marketplace update video-studio` and `claude plugin update video-studio@video-studio`.
+Update later with `claude plugin marketplace update video-studio` and `claude plugin update video-studio@video-studio`,
+then `/studio-setup update` so the toolbox and MangoAI match the new plugin.
+
+**Developing MangoAI?** Set `MANGOAI_REPO` to your clone (a user environment variable) and the plugin runs it instead
+of the pinned package. `MANGOAI_PACKAGE` runs any other build (an npm spec or a `.tgz`).
 
 ## Your profile
 

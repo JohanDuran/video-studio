@@ -11,7 +11,7 @@ $ErrorActionPreference = 'Stop'
 
 # One instance only.
 $created = $false
-$mutex = New-Object System.Threading.Mutex($true, 'Local\JDKoderRecIndicator', [ref]$created)
+$mutex = New-Object System.Threading.Mutex($true, 'Local\VideoStudioRecIndicator', [ref]$created)
 if (-not $created) { exit }
 
 Add-Type -ReferencedAssemblies System.Windows.Forms, System.Drawing, System.Management -TypeDefinition @'
