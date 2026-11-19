@@ -29,6 +29,7 @@ can break the other two, so read this before changing anything listed under *Con
 
 | video-studio | media-toolbox | MangoAI | Notes |
 |---|---|---|---|
+| 0.10.1 | v0.5.0 (min v0.5.0) | 0.3.2 | Editor timeline: readable lanes for overlapping clips, scrollbars, resizable panel, opens fitted |
 | 0.10.0 | v0.5.0 (min v0.5.0) | 0.3.0 | Editor workflow release: request replies (the hook reports follow-ups), ducking, volume keys, loudness target, pre-export checks, templates, batch export |
 | 0.9.0 | v0.5.0 (min v0.5.0) | 0.2.0 | First release-pinned set: toolbox installs without a clone and reports its `version`; MangoAI runs from its package; the plugin registers MangoAI and its hook |
 | 0.8.0 | v0.4.0 | clone of `main` | MangoAI registered by hand (`npm run claude-setup`) |
