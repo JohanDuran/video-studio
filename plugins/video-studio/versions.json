@@ -1,9 +1,9 @@
 {
   "_comment": "The releases of the other two pieces this plugin version is built and tested against. tools/mangoai-launch.mjs and /studio-setup read this file; ECOSYSTEM.md (repo root) explains how to bump it. Change all three repos together.",
-  "plugin": "0.10.0",
+  "plugin": "0.10.1",
   "mangoai": {
-    "version": "0.3.0",
-    "package": "https://github.com/JohanDuran/MangoAI/releases/download/v0.3.0/mangoai-0.3.0.tgz",
+    "version": "0.3.2",
+    "package": "https://github.com/JohanDuran/MangoAI/releases/download/v0.3.2/mangoai-0.3.2.tgz",
     "min_node": 22
   },
   "media_toolbox": {
