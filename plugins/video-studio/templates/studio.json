@@ -35,9 +35,7 @@
       "Claude",
       "Claude Code",
       "MCP",
-      "DaVinci Resolve",
       "HyperFrames",
-      "Blender",
       "ffmpeg"
     ]
   },
@@ -60,11 +58,6 @@
     "gpu": "",
     "gpu_vram_gb": 0,
     "sfx_library": ""
-  },
-  "resolve": {
-    "edition": "free",
-    "version": "21.0",
-    "timeline_fps": 60
   },
   "house_rules": []
 }

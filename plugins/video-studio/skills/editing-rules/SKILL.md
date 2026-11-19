@@ -1,6 +1,6 @@
 ---
 name: editing-rules
-description: Standing rules for making and editing video with the video-studio plugin — free tools only (free DaVinci Resolve 21.0.x, HyperFrames local render, ffmpeg, the local media toolbox), never touch raw recordings, work non-destructively, keep project files in the studio folder, plus the user's own house rules from their studio profile. Read before any DaVinci Resolve, HyperFrames, animation, audio, color, render or Shorts task, before opening any website for a video (Claude in Chrome only), and before suggesting any tool, upgrade or paid feature.
+description: Standing rules for making and editing video with the video-studio plugin — free tools only (the MangoAI editor, HyperFrames local render, ffmpeg, the local media toolbox), never touch raw recordings, work non-destructively, keep project files in the studio folder, plus the user's own house rules from their studio profile. Read before any editing, HyperFrames, animation, audio, color, render or Shorts task, before opening any website for a video (Claude in Chrome only), and before suggesting any tool, upgrade or paid feature.
 ---
 
 # Editing rules
@@ -18,15 +18,9 @@ Follow these without re-asking. For what tools exist and how to use them, read `
 
 ## 1. Everything must be free
 
-- **DaVinci Resolve: free edition, 21.0.x.** Never suggest upgrading to 21.1 or later: 21.1 made Python
-  scripting Studio-only, which breaks the Resolve MCP on the free edition.
-  - Don't propose 21.1-only API features (SetSpeed, AddTransition, SetFades, NormalizeAudioLevel,
-    CreateMulticamClip, AutoAlignClips, output blanking). Offer a workaround (keyframes, Fusion, ffmpeg, or a
-    manual UI step).
-  - Don't propose Studio-only features (Voice Isolation, Dialogue Leveler, temporal/spatial noise reduction,
-    Super Scale, Magic Mask) without saying they're Studio-only.
-  - If `resolve.edition` in the profile is `studio`, the Studio features are fine; the 21.0.x pin still stands
-    only if the user relies on the in-app bridge.
+- **The editor is MangoAI.** Every edit (Shorts, explainers, long recordings) happens in a MangoAI project the user
+  can watch and fix live. Don't bring in other editors or 3D tools (DaVinci Resolve, Blender, Premiere, CapCut):
+  they aren't part of this studio.
 - **HyperFrames: local rendering only.** MangoAI renders: comps on its timeline at `export`, any other HyperFrames
   folder with `comp_render`. (The toolbox has no HyperFrames since v0.4.0.) `npx hyperframes render` is the fallback.
   - Never run `hyperframes cloud render`, `lambda`, `cloudrun`, or `hyperframes auth login`.
@@ -35,8 +29,7 @@ Follow these without re-asking. For what tools exist and how to use them, read `
     `speak` / `speak_clone` for voice, `sfx_search`/`sfx_generate` for sound, `transcribe` for transcripts.
   - If a HyperFrames workflow step needs one of these, skip it or use the free alternative and say so.
   - Don't push the HyperFrames desktop app or `hyperframes open`: the pipeline is Claude + the MangoAI editor (live
-    preview, edits, export) + the toolbox, with Resolve (via OTIO or the Resolve MCP) when the user wants it. The web
-    Studio preview is fine for the user's own small tweaks.
+    preview, edits, export) + the toolbox. The web Studio preview is fine for the user's own small tweaks.
 - **One owner per job** (`video-toolkit` §1b): the media toolbox makes voices, transcripts, sounds and images;
   MangoAI previews, edits and renders. Don't use the toolbox's deprecated `short_build` / `short_preview` for new
   videos.
@@ -47,7 +40,7 @@ Follow these without re-asking. For what tools exist and how to use them, read `
 - **Cloned voices need consent.** Only clone the user's own voice, or a voice whose owner gave written permission.
   Never clone anyone from their videos, podcasts or interviews, whatever the user asks. When a video uses a realistic
   cloned voice, remind the user to tick YouTube's "altered or synthetic content" box at upload.
-- **Transcription:** WhisperX via toolbox `transcribe`, not Resolve's or HeyGen's. No speaker diarization unless asked.
+- **Transcription:** WhisperX via toolbox `transcribe`, not HeyGen's. No speaker diarization unless asked.
 - **Generated SFX/music:** Stable Audio Open 1.0 via toolbox `sfx_generate` (its Hugging Face license is accepted
   during `/studio-setup`).
 - **Real photos stay real:** on real-estate or product videos the photo must be the real one, unaltered except for
@@ -66,26 +59,24 @@ Follow these without re-asking. For what tools exist and how to use them, read `
   _scratch/          toolbox outputs with no project folder
   <channel>/         one folder per channel
     studio.json      that channel's profile
-    <ProjectName>/   one folder per video, named exactly after the Resolve project
-      plan.md, script.json, short.json
-      audio/           narration, mixes
+    <ProjectName>/   one folder per video
+      plan.md, script.json, short.json, cut.json (the MangoAI edit)
+      audio/           narration, mixes, mic tracks copied out of recordings
       capture/         screen recordings made for this video
-      transcripts/     per-file transcripts + <timeline>.timeline.* (timeline time)
-      timeline/        captured track layouts
-      animations/      HyperFrames projects and renders
-      builds/, renders/, audio_preview/
+      transcripts/     per-file transcripts (words.tsv)
+      animations/      HyperFrames comps
+      renders/, audio_preview/, .mangoai/ (the editor's cache and revisions)
 ```
 
 A single-channel studio may keep `studio.json` and the project folders directly in `<studio>/`; that still works.
 
-- Get the project name from Resolve (`project_manager get_current`) when one is open; otherwise agree it with the user.
-  Create the folder the first time it's needed.
+- Agree the project name with the user (short, e.g. the date and topic). Create the folder the first time it's needed.
 - Never write project files into the studio root, another channel's folder, or next to source recordings.
 
 ## 3. Raw recordings are read-only
 
 - The recordings folder (`recordings.folder`) is never written to: no overwrites, deletes, renames or sidecar files.
-  Processed media goes into the project folder as copies, then gets swapped in through the media pool.
+  Processed media goes into the project folder as copies, and the MangoAI clip then points at the copy.
 - Use `recordings.mic_audio_stream` for transcription. If a recording has extra audio tracks (desktop audio,
   a duplicate of the mic), point it out and don't remove or mute them without asking.
 
@@ -99,15 +90,15 @@ A single-channel studio may keep `studio.json` and the project folders directly 
 - **Preview before committing:** for audio/visual changes, render a short before/after sample into
   `<project>/audio_preview/` (or similar) and let the user decide.
 - **Propose, then apply:** show proposed cuts, trigger points and overlay placements before changing a timeline.
-- **Overlays → Resolve:** build HyperFrames projects in `<project>/animations/`, render as `mov` (alpha) at the
-  timeline fps, import, and place on an empty video track. If another session may be working in `animations/`,
-  build one-off overlays as their own HyperFrames project in a sibling folder.
+- **Overlays:** HyperFrames comps on a MangoAI graphics track (`comp_create`, linked to the spoken word); export
+  renders them. If another session may be working in `animations/`, build one-off overlays as their own HyperFrames
+  project in a sibling folder.
 - **Face-safe zones:** when there's a camera image, measure where the face sits (tile frames with ffmpeg) before
   placing cards; never cover the face.
 - **Privacy:** never show anything from `channel.never_show`. Screen recordings capture whatever was on screen —
   check every crop at its first and last frame.
 - **Sound library:** search before generating, record the user's verdicts with `sfx_mark`, never delete library
-  files (rejected ones included). Place picks on an empty audio track, never Audio 1.
+  files (rejected ones included). Place picks on their own audio track, never the voice track (A1).
 
 ## 6. Websites go through Claude in Chrome
 

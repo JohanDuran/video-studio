@@ -1,7 +1,7 @@
 # video-studio
 
 A Claude Code plugin for making and editing videos with **free, local tools**: vertical Shorts, long-form recording
-edits in DaVinci Resolve, and faceless explainers. Claude does the editing work; you approve each step.
+edits and faceless explainers, all in the MangoAI editor. Claude does the editing work; you approve each step.
 
 It works from any folder. Your personal settings (channel, voice, recordings layout, screen) live in one profile file,
 not in the plugin.
@@ -32,10 +32,11 @@ them. **A change in one repo can break the others**: read ECOSYSTEM.md before ch
 
 | Command | What it does |
 |---|---|
-| `/studio-setup` | Claude sets up everything: checks Docker, your GPU and Hugging Face login, installs the media toolbox (no clone) and warms MangoAI at the pinned versions, asks a few questions and writes your profile; installs the HyperFrames skills and the DaVinci Resolve MCP. `/studio-setup update` after a plugin update brings the other pieces to the new versions |
-| `/plan [idea]` | **Start here for every new video.** Discusses the idea with you (goal, audience, format, what footage you already have), picks the right tool for each beat (screen recording only where a real screen is the point; otherwise existing footage, HyperFrames graphics, Blender, stills) with the reasons, and writes `plan.md`. Produces nothing until you approve |
+| `/studio-setup` | Claude sets up everything: checks Docker, your GPU and Hugging Face login, installs the media toolbox (no clone) and warms MangoAI at the pinned versions, asks a few questions and writes your profile; installs the HyperFrames skills. `/studio-setup update` after a plugin update brings the other pieces to the new versions |
+| `/editor-setup` | Installs only the MangoAI editor (Node.js, ffmpeg, the pinned MangoAI): no Docker, GPU or toolbox. For editing and exporting your own footage with Claude; add the rest later with `/studio-setup` |
+| `/plan [idea]` | **Start here for every new video.** Discusses the idea with you (goal, audience, format, what footage you already have), picks the right tool for each beat (screen recording only where a real screen is the point; otherwise existing footage, HyperFrames graphics, stills) with the reasons, and writes `plan.md`. Produces nothing until you approve |
 | `/short <topic>` | Vertical Short from the approved plan: script → voiceover → word timings → each beat's visuals as planned → `short.json` → live preview and hand fixes in MangoAI → privacy check → export |
-| `/edit-recording` | Long-form edit: transcribe → cut proposals → (plan for additions) → apply in Resolve → HyperFrames overlays timed to words → SFX → render |
+| `/edit-recording` | Long-form edit in MangoAI: set up a project from the recording → transcribe → cut proposals → apply on the timeline (you watch and fix live) → (plan for additions) → HyperFrames overlays and captions tied to words → SFX and music → export |
 | `/explainer <topic>` | Faceless explainer from the approved plan: script → voiceover → scenes built in HyperFrames → assembled and exported in MangoAI |
 
 `/short`, `/explainer` and `/edit-recording` check for an approved `plan.md` first; without one they start with `/plan`.
@@ -44,9 +45,8 @@ Background skills Claude reads on its own: `video-toolkit` (every capability and
 (free tools only, raw recordings are read-only, non-destructive edits, folder layout, your house rules).
 
 MCP servers registered by the plugin: `media-toolbox` (`http://localhost:8765/mcp`), `mangoai` (the pinned `mangoai`
-package through `npx`, via `tools/mangoai-launch.mjs`) and `blender` (`uvx mcp-for-blender`, optional), plus MangoAI's
-hook that tells Claude what you saved in the editor. The DaVinci Resolve MCP is installed by `/studio-setup` with its
-own installer.
+package through `npx`, via `tools/mangoai-launch.mjs`), plus MangoAI's hook that tells Claude what you saved in the
+editor.
 
 **Who does what:** the [MangoAI](https://github.com/JohanDuran/MangoAI) editor previews, edits and renders the videos
 (you and Claude edit the same timeline); the media toolbox runs the GPU models (voice, transcription, sounds, images).
@@ -64,8 +64,7 @@ viewer, it moves to the taskbar instead, so you can see it, and stays outside th
 - [Claude Code](https://claude.com/claude-code) and Docker Desktop. `/studio-setup` installs the rest with your OK:
   Node.js 22+, ffmpeg, the **media-toolbox** (Docker stack: WhisperX, Kokoro TTS, Chatterbox cloned voices, Stable
   Audio Open, FLUX images, ffmpeg) and the **MangoAI** editor (runs on the host with Node).
-- Optional: DaVinci Resolve **free 21.0.x** (don't update to 21.1+, which made scripting Studio-only), Blender + uv,
-  a free Hugging Face account for Stable Audio.
+- Optional: a free Hugging Face account for Stable Audio.
 
 ## Install
 
@@ -97,7 +96,7 @@ of the pinned package. `MANGOAI_PACKAGE` runs any other build (an npm spec or a 
 
 - `<studio>/<channel>/studio.json` — the channel's profile (template: `plugins/video-studio/templates/studio.json`):
   channel name and language, recordings folder and which audio stream is the mic, whether the camera is a separate file,
-  default voice and speed (plus an optional cloned voice, `voice.clone`), transcription vocabulary, screen geometry, toolbox and Resolve settings, and `house_rules` —
+  default voice and speed (plus an optional cloned voice, `voice.clone`), transcription vocabulary, screen geometry, toolbox settings, and `house_rules` —
   standing preferences Claude adds to as you state them.
 - `~/.video-studio/config.json` — the studio root, your channels and the default one, so the plugin finds a profile
   from any working folder.
@@ -117,11 +116,11 @@ chat opened anywhere else uses the default channel. Generated sounds and raw rec
 
 The plugin never uses paid services: HyperFrames renders locally (no HeyGen cloud rendering or credits), voice is
 Kokoro, a local Chatterbox clone of your own voice, or you (you pick it per video). Transcription is WhisperX, sound
-effects are Stable Audio Open, editing is free DaVinci Resolve.
+effects are Stable Audio Open, editing and rendering is MangoAI.
 
-Third-party pieces it installs or calls: [HyperFrames](https://github.com/heygen-com/hyperframes) skills,
-[davinci-resolve-mcp](https://github.com/samuelgursky/davinci-resolve-mcp), mcp-for-blender. Check their licenses;
-Stable Audio Open has its own license on Hugging Face.
+Third-party pieces it installs or calls: [HyperFrames](https://github.com/heygen-com/hyperframes) (skills, and its
+renderer inside MangoAI) and the models in the media toolbox (WhisperX, Kokoro, Chatterbox, Stable Audio Open, FLUX.1
+[dev]). Check their licenses; Stable Audio Open and FLUX.1 [dev] have their own model licenses on Hugging Face.
 
 ## License
 

@@ -36,7 +36,7 @@ Use only the tools the plan needs: a music bed, SFX, registry blocks or footage 
 Skip any part of a step that the video doesn't need.
 
 1. **Brief** — take audience, length, tone, format and the beats (one idea per scene) from the approved `plan.md`.
-   If the plan routes some beats to footage or Blender, build those as the plan says and place them as scenes.
+   If the plan routes some beats to footage, build those as the plan says and place them as scenes.
 2. **Script** → `script.json` (one spoken line per entry, grouped by scene).
 3. **Voice** — per line with the plan's narration voice (`speak`, `speak_clone` or the user's takes; if the plan
    doesn't say, ask), trim silences, join (`video-toolkit` §3) → `audio/narration.wav`; user listens.
@@ -58,7 +58,6 @@ Skip any part of a step that the video doesn't need.
 7. **Render** — MangoAI `export` → `<project>/renders/<project>-r<revision>.mp4` (only changed scenes re-render). Check
    loudness ≈ −14 LUFS, peak ≤ −1 dB. (One single HyperFrames composition instead of scenes: MangoAI `comp_render`,
    format `mp4`, fps 30 or 60.)
-8. Optional: finish in Resolve: `export_otio`, then File → Import → Timeline (`video-toolkit` §5).
 
 Done = an approved MP4 in `<project>/renders/`, with `cut.json` and the scene comps kept so scenes can be re-timed after
 a new voice take (the words reload and the anchored scenes follow).

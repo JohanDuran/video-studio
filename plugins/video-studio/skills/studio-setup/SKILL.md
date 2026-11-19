@@ -1,6 +1,6 @@
 ---
 name: studio-setup
-description: "Set up or update everything video-studio needs on this PC, done by Claude end to end: checks Docker, installs the media toolbox (no clone, pinned release), warms the MangoAI editor this plugin registers, checks the versions of the three pieces (plugin, media-toolbox, MangoAI) and removes an old duplicate MangoAI registration; checks the NVIDIA GPU and the Hugging Face login for Stable Audio, asks the user a few questions and writes a channel profile <studio>/<channel>/studio.json plus the ~/.video-studio/config.json pointer, adds more channels (one folder each), installs the HyperFrames skills globally, and installs the DaVinci Resolve MCP with its free-edition bridge. Use when the user runs /studio-setup, when the studio profile is missing, or when they want to change their channel, voice, recordings or screen settings, or add another channel."
+description: "Set up or update everything video-studio needs on this PC, done by Claude end to end: checks Docker, installs the media toolbox (no clone, pinned release), warms the MangoAI editor this plugin registers, checks the versions of the three pieces (plugin, media-toolbox, MangoAI) and removes an old duplicate MangoAI registration; checks the NVIDIA GPU and the Hugging Face login for Stable Audio, asks the user a few questions and writes a channel profile <studio>/<channel>/studio.json plus the ~/.video-studio/config.json pointer, adds more channels (one folder each), and installs the HyperFrames skills globally. Use when the user runs /studio-setup, when the studio profile is missing, or when they want to change their channel, voice, recordings or screen settings, or add another channel."
 argument-hint: "[check | channel | voice | recordings | ...]"
 ---
 
@@ -22,7 +22,7 @@ Safe to run again:
   `recordings`, … → that section of the current channel; `check` → §1 only, changes nothing; `update` → §1 + §1d.
 - **Older single-channel studio** (`studio.json` directly in the studio root): it keeps working. When the user adds a
   second channel, offer to move the first one into its own `<studio>/<channel>/` folder (its `studio.json` and project
-  folders), and warn that Resolve projects then need their media relinked.
+  folders); MangoAI projects keep working when moved, except media referenced by a relative path outside the folder.
 
 Rules for this skill: free tools only (see `editing-rules`). **One approval for the installs:** after §1, show the
 list of what you'll install or change and ask once; then do all of it without asking per step. Never type tokens,
@@ -53,15 +53,18 @@ Run these and collect the results before asking anything:
 | Docker | `docker version --format '{{.Server.Version}}'` | Not installed: the user runs `winget install -e --id Docker.DockerDesktop` (admin, may need a reboot and WSL 2), starts Docker Desktop once and tells you. Installed but not running: ask them to start it, then re-check |
 | Media toolbox | `toolbox_status` MCP tool, or `GET http://localhost:8765/api/state` | Not answering → §1a. Answering: compare its `version` with `media_toolbox.min` (no `version` field, or `dev` from a clone, counts as older/unknown: say so) → §1d |
 | NVIDIA GPU | `nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader` | No GPU → install the toolbox with `-NoGpu`: no transcription, TTS, SFX generation or FLUX images; ffmpeg, MangoAI renders and Shorts still work |
-| Node.js ≥ `mangoai.min_node` | `node --version` | Needed for MangoAI, HyperFrames and the Resolve MCP → `winget install -e --id OpenJS.NodeJS.LTS`, then a new session |
+| Node.js ≥ `mangoai.min_node` | `node --version` | Needed for MangoAI and HyperFrames → `winget install -e --id OpenJS.NodeJS.LTS`, then a new session |
 | ffmpeg on the host | `ffmpeg -version` | Needed by MangoAI and for screen recording → `winget install -e --id Gyan.FFmpeg` |
-| uv (optional) | `uvx --version` | Only for the Blender MCP → `winget install -e --id astral-sh.uv` |
-| Hugging Face login | `hf auth whoami` (or `uvx --from huggingface_hub hf auth whoami`) | §1b |
+| Hugging Face login | `hf auth whoami` | §1b (only for generated sounds) |
 | MangoAI | its tools are loaded (`mcp__plugin_video-studio_mangoai__*`), and after a `project_state` call `GET http://localhost:4780/api/health` reports `version` = `mangoai.version` | §1c |
 | Duplicate MangoAI | `claude mcp get mangoai` shows a **user-scope** `mangoai`, or `~/.claude/settings.json` has a UserPromptSubmit hook running MangoAI's `hook.mjs` | §1e |
 
 Then show the user one list: what's ✓, what you'll install or change (with the commands), and what only they can do.
 Ask once; on a yes, do all of it.
+
+**No NVIDIA GPU, or no Docker and they don't want it:** offer the editor alone instead (`/editor-setup`: Node, ffmpeg
+and MangoAI, nothing else). Without a GPU the toolbox adds little beyond the sound library, and Docker is the heaviest
+install. They can come back to `/studio-setup` later.
 
 ### 1a. Install the media toolbox (no clone)
 
@@ -89,7 +92,8 @@ version and, with their OK, run `install.ps1 -Version <media_toolbox.version>` i
 
 Stable Audio Open 1.0 is gated. The user must, themselves:
 1. Accept the license on https://huggingface.co/stabilityai/stable-audio-open-1.0 (free account).
-2. Run `hf auth login` in their own terminal and paste a read token. The toolbox uses the token saved under
+2. Run `hf auth login` in their own terminal and paste a read token (no `hf` command yet: `winget install -e --id
+   Python.Python.3.12`, then `pip install -U "huggingface_hub[cli]"`). The toolbox uses the token saved under
    `%USERPROFILE%\.cache\huggingface`.
 Transcription and TTS need no account. Skip this if they don't want generated sound effects.
 
@@ -153,11 +157,10 @@ Ask in one or two rounds (use the question tool where available), with sensible 
 6. **Screen** — read it rather than asking: resolution and scale via PowerShell
    (`Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Screen]::PrimaryScreen`), taskbar position,
    and the usable app area. Confirm with the user.
-7. **Resolve** — edition (free/Studio) and version, timeline fps they usually use.
 
 ### 2b. Adding another channel
 
-Skip the machine checks (run `toolbox_status` only). Copy `recordings`, `screen`, `toolbox` and `resolve` from an
+Skip the machine checks (run `toolbox_status` only). Copy `recordings`, `screen` and `toolbox` from an
 existing channel's profile and ask only whether any of them differ for this channel. Then ask the channel-specific
 questions: **Channel** (2), **Voice** (4), **Transcription vocab** (5), and any standing preferences for `house_rules`.
 Start `house_rules` empty unless the user wants rules copied from another channel.
@@ -188,21 +191,7 @@ npx skills add heygen-com/hyperframes -g -a claude-code --skill '*' -y
 Check with `npx skills ls -g`. Restart Claude Code to load them. Remind them: local renders only — this plugin never uses
 HyperFrames cloud rendering, HeyGen credits or `hyperframes auth login`.
 
-## 5. DaVinci Resolve MCP
-
-Third-party server: samuelgursky/davinci-resolve-mcp (MIT). With the user's OK:
-
-1. Resolve must be installed (free edition is fine). **Stay on 21.0.x** — don't update to 21.1+: it made Python scripting
-   Studio-only and the free-edition connection stops working. Tell them to decline Resolve's update prompts.
-2. Run `npx davinci-resolve-mcp setup` and follow its prompts; pick **Claude Code** when it asks which clients to configure.
-3. **Free edition:** external scripting is Studio-only, so the server talks to Resolve through an in-app bridge script.
-   Install it with the bridge installer from the davinci-resolve-mcp folder the setup created
-   (`python scripts/install_resolve_bridge.py`), restart Resolve, open a project, then run
-   **Workspace → Scripts → Utility → resolve_bridge**. This has to be done each time Resolve starts, with a project open.
-   Studio edition instead: Preferences → General → External scripting using → Local.
-4. Restart Claude Code, then test with `project_manager get_current`.
-
-## 6. Recording indicator (Windows)
+## 5. Recording indicator (Windows)
 
 A floating pill that is always on top: red **REC m:ss** while a host screen recording runs (any `ffmpeg` with
 `gdigrab`/`ddagrab` in its command line), then green **DONE** with a chime when it stops (it hides after 2 min, or on
@@ -223,12 +212,7 @@ strip, outside the profile's `screen.app_area`, so edits that crop to the app ar
 
 To check it, record about 5 s with `gdigrab`: the pill should show red during the recording and green after it.
 
-## 7. Blender (optional)
-
-This plugin already registers `blender` (`uvx mcp-for-blender`). It needs uv and Blender with the MCP add-on running;
-point the user to the mcp-for-blender README for the add-on. Skip if they don't do 3D.
-
-## 8. Wrap up
+## 6. Wrap up
 
 Show a short summary: what's working (with the versions running: plugin, toolbox, MangoAI), what's skipped, what
 the user still has to do themselves (Docker Desktop, Hugging Face, a `/mcp` reconnect or new session), where the

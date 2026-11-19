@@ -1,6 +1,6 @@
 ---
 name: plan
-description: "Plan a new video together with the user before anything is produced: discuss the idea, goal, audience, platform and what material already exists, then choose for each beat the tool that fits (screen recording, existing footage, camera/phone clips, HyperFrames motion graphics, Blender 3D, stills, a Kokoro voice, a cloned voice or the user's own recorded voice, music/SFX) and write plan.md with the reasons. Produces only a plan — nothing is recorded, voiced or rendered. Use when the user runs /plan, wants a new video, has a video idea to discuss, or runs /short, /explainer or /edit-recording without an approved plan."
+description: "Plan a new video together with the user before anything is produced: discuss the idea, goal, audience, platform and what material already exists, then choose for each beat the tool that fits (screen recording, existing footage, camera/phone clips, HyperFrames motion graphics, stills, a Kokoro voice, a cloned voice or the user's own recorded voice, music/SFX) and write plan.md with the reasons. Produces only a plan — nothing is recorded, voiced or rendered. Use when the user runs /plan, wants a new video, has a video idea to discuss, or runs /short, /explainer or /edit-recording without an approved plan."
 argument-hint: "[idea or topic]"
 ---
 
@@ -10,7 +10,7 @@ Idea: `$ARGUMENTS` (may be empty, vague, or just a feeling — that's fine).
 
 This is a **conversation, not a pipeline.** The output is an approved `plan.md`. Nothing gets recorded, voiced,
 generated or rendered in this skill. Don't start the screen recorder, don't call `speak`, `sfx_generate`,
-MangoAI's `comp_render` or `export`, don't open MangoAI or Resolve projects.
+MangoAI's `comp_render` or `export`, don't open MangoAI projects.
 
 Before anything: read the profile (`video-toolkit` §0) — channel, language, house rules, recordings folder,
 whether there's a GPU (`toolbox.gpu`) — and follow `editing-rules`.
@@ -23,7 +23,7 @@ Ask, in one or two short rounds (use the question tool where available; skip wha
 - **Audience** — who, and what they already know.
 - **Platform and format** — YouTube long-form (16:9), Shorts/Reels/TikTok (9:16), or both. Rough length.
 - **What already exists** — recordings in `recordings.folder`, camera or phone clips, screenshots, earlier renders,
-  a Resolve project, or nothing. Look in the recordings folder and the channel folder instead of asking when you can
+  an earlier MangoAI project, or nothing. Look in the recordings folder and the channel folder instead of asking when you can
   (list files, `ffprobe` durations, `short_frames` contact sheets) — read-only.
 - **The user's part** — will they be on camera? Who narrates is the user's call (see **The narration voice** below).
   Any time limits?
@@ -43,8 +43,7 @@ what each beat needs, and it's fine for a video to use just one or two of these.
 | **Screen recording** (ffmpeg, Claude driving the browser or apps) | Showing a real app, a real result, "watch it happen" proof | Something real on screen worth showing; a hands-off window from the user; a privacy check |
 | **Existing footage** (recordings folder, camera, phone) | Reusing what's already shot; the user's face and voice | The files exist — confirm them |
 | **New camera/phone footage** | Presence, reactions, real-world objects | The user films it — list exactly what to shoot |
-| **HyperFrames motion graphics** | Concepts, steps, lists, numbers, comparisons, diagrams, titles, captions | Nothing but time to build; local render only |
-| **Blender 3D** | Objects, products, spatial ideas, a mascot | Blender + the MCP running; slower |
+| **HyperFrames motion graphics** | Concepts, steps, lists, numbers, comparisons, diagrams, titles, captions; simple 3D looks from the registry blocks | Nothing but time to build; local render only |
 | **Stills / screenshots / diagrams** | A single moment, a before/after, a quote | The image, or a screenshot taken in step 3 |
 | **Generated image** (`image_generate`, FLUX) | A concept or imagined scene with no real source, a background for a graphic, thumbnail ideas | The toolbox's `flux` profile; ~30–45 s per image. Never for real things (a listing, a product, a person) |
 | **Narration** | Kokoro (`voice.default`), a cloned voice (`speak_clone` with a voice profile), or the user recording it | The user picks (see below). Kokoro and clones need the GPU tools; a recording needs a session |
@@ -78,7 +77,7 @@ If they want to hear the options first, offer to voice one line from the script 
 
 ## 3. Write `plan.md`
 
-Agree a project name (the Resolve project name when there will be one). Create `<channel folder>/<ProjectName>/` and
+Agree a project name with the user. Create `<channel folder>/<ProjectName>/` and
 write `plan.md`:
 
 ```markdown

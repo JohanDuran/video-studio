@@ -6,11 +6,10 @@
     },
     "mangoai": {
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/tools/mangoai-launch.mjs", "mcp"]
-    },
-    "blender": {
-      "command": "uvx",
-      "args": ["mcp-for-blender"]
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/tools/mangoai-launch.mjs",
+        "mcp"
+      ]
     }
   }
 }
