@@ -140,8 +140,11 @@ Ask in one or two rounds (use the question tool where available), with sensible 
    (match the toolbox's `-StudioDir` if already installed: read `OUTPUTS_DIR` / `SFX_LIBRARY` from its `.env`).
 2. **Channel** — name, handle, main language, one line on what it's about, anything that must never appear on screen.
    Its folder is `<studio>/<channel-slug>/` (lowercase, dashes, e.g. `my-channel`); confirm the name.
-3. **Recordings** (optional) — default folder `<studio>/recordings`, for any source (screen recorder, camera, phone).
-   Suggest pointing their recorder's output there; if they keep recordings elsewhere, use that folder instead.
+3. **Recordings** (optional) — where the footage for a video goes, from any source (screen recorder, camera, phone).
+   Default `<project>/recordings`: each video's project folder keeps its own recordings, so a project is self-contained
+   and nobody has to work out which file in a shared pile belongs to which video. Write `"folder": "<project>/recordings"`.
+   The alternative is one shared folder (`<studio>/recordings` or wherever their recorder already saves); then write
+   that path. Either way the recordings are read-only.
    Ask whether the camera is a separate file. Then probe one recent file with `ffprobe` to find which audio stream is the mic
    (`mic_audio_stream`) and note any extra tracks in `audio_streams_note`. Record the camera file naming pattern if separate.
 4. **Voice** — offer 3–4 Kokoro voices for their language, `speak` one line with each into the studio's scratch folder

@@ -7,13 +7,15 @@ argument-hint: "[recording file(s) or project folder]"
 # /edit-recording — long-form edit in MangoAI
 
 Target: `$ARGUMENTS` — one or more recording files, an existing project folder (with `cut.json`), or empty = ask which
-recording (list the newest files in `recordings.dir`).
+recording (with `recordings.folder` = `<project>/recordings`, ask which project and list its `recordings/`; with a
+shared folder, list the newest files there).
 
 Before anything: read the profile (`video-toolkit` §0) and follow `editing-rules`: the recordings folder is read-only,
 no audio or picture processing unless asked, propose before applying. Check `toolbox_status` (transcription and
 sounds need it; without it, see *No toolbox* below).
 
-Project folder: `<channel folder>/<project-name>/` (`video-toolkit` §0), e.g. the recording's date and topic.
+Project folder: `<channel folder>/<project-name>/` (`video-toolkit` §0), e.g. the recording's date and topic. With
+per-project recordings, the user's files are already in `<project>/recordings/`; never move or copy them there yourself.
 
 **Plan first.** If `plan.md` in the project folder has `Status: approved`, follow it: its goal, which parts to keep,
 which overlays, graphics, B-roll and sounds to add, and with which tool. Without an approved plan, steps 1–4 (setting

@@ -55,11 +55,12 @@ Follow these without re-asking. For what tools exist and how to use them, read `
 ```
 <studio>/
   sfx_library/       shared generated sounds + index.jsonl (reused across videos and channels; toolbox.sfx_library)
-  recordings/        raw recordings from any source (default recordings.folder): read-only
+  recordings/        shared raw recordings, when recordings.folder points here: read-only
   _scratch/          toolbox outputs with no project folder
   <channel>/         one folder per channel
     studio.json      that channel's profile
     <ProjectName>/   one folder per video
+      recordings/      this video's footage when recordings.folder is <project>/recordings (the default): read-only
       plan.md, script.json, short.json, cut.json (the MangoAI edit)
       audio/           narration, mixes, mic tracks copied out of recordings
       capture/         screen recordings made for this video
@@ -75,7 +76,8 @@ A single-channel studio may keep `studio.json` and the project folders directly 
 
 ## 3. Raw recordings are read-only
 
-- The recordings folder (`recordings.folder`) is never written to: no overwrites, deletes, renames or sidecar files.
+- The recordings folder (`recordings.folder`; `<project>/recordings` means each project's `recordings/`, and the
+  studio's shared `recordings/` is read-only too) is never written to: no overwrites, deletes, renames or sidecar files.
   Processed media goes into the project folder as copies, and the MangoAI clip then points at the copy.
 - Use `recordings.mic_audio_stream` for transcription. If a recording has extra audio tracks (desktop audio,
   a duplicate of the mic), point it out and don't remove or mute them without asking.
